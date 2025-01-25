@@ -1,23 +1,30 @@
+#pragma once
+#include"pch.h"
+#include "Window/Window.h"
 namespace SerenEngine
 {
-	struct SEREN_API ApplictionConfig
+	struct SEREN_API ApplicationConfiguration
 	{
 		int WindowWidth;
 		int WindowHeight;
 		const char* WindowTitle;
+		EWinPlatformSpec WindowSpec;
 	};
 	class SEREN_API Application
 	{
 	public:
 		virtual ~Application() = default;
-		virtual bool Init() { return true; };
+		bool Init();
+		virtual void OnInitClient()=0;
 		void Run();
-		virtual void Shutdown() {};
+		void Shutdown();
+		virtual void OnShutdownClient() = 0;
 	protected:
 		Application() = default;
-		Application(const ApplictionConfig& config);
+		Application(const ApplicationConfiguration& config);
 	private:
-		ApplictionConfig m_Config;
+		ApplicationConfiguration m_Config;
+		Unique<INativeWindow> m_NativeWindow;
 	};
 	extern Application* CreateApplication();
 }
