@@ -1,12 +1,12 @@
 namespace SerenEngine
 {
-	struct ApplictionConfig
+	struct SEREN_API ApplictionConfig
 	{
 		int WindowWidth;
 		int WindowHeight;
 		const char* WindowTitle;
 	};
-	class Application
+	class SEREN_API Application
 	{
 	public:
 		virtual ~Application() = default;

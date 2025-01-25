@@ -1,6 +1,7 @@
 #include"Application.h"
 #include<iostream>
 #include"Core/Logger/Logger.h"
+
 namespace SerenEngine
 {
 	Application::Application(const ApplictionConfig& config): m_Config(config){

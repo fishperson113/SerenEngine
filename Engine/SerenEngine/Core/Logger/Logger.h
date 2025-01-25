@@ -4,12 +4,12 @@
 #include"pch.h"
 namespace SerenEngine
 {
-	class Logger
+	class SEREN_API Logger
 	{
 	public:
 		static void Init();
-		static Shared<spdlog::logger>& GetCoreLogger() { return s_CoreLogger; };
-		static Shared<spdlog::logger>& GetClientLogger() { return s_ClientLogger; };
+		static FORCE_INLINE Shared<spdlog::logger>& GetCoreLogger() { return s_CoreLogger; };
+		static FORCE_INLINE Shared<spdlog::logger>& GetClientLogger() { return s_ClientLogger; };
 	private:
 		static Shared<spdlog::logger> s_CoreLogger;
 		static Shared<spdlog::logger> s_ClientLogger;

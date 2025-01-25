@@ -8,6 +8,6 @@ int main()
 		app->Run();
 	}
 	app->Shutdown();
-	delete app;
+	FREE_MEMORY(app);
 	return 0;
 }
