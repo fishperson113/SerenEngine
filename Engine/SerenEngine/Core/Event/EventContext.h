@@ -48,8 +48,8 @@ namespace SerenEngine
 		MouseMovedEvent(double x, double y, double offsetX, double offsetY) :
 			xPosition(x), yPosition(y),
 			xOffset(offsetX), yOffset(offsetY) {}
-		FORCE_INLINE double GetX() const { return xPosition; }
-		FORCE_INLINE double GetY() const { return yPosition; }
+		FORCE_INLINE double GetPositionX() const { return xPosition; }
+		FORCE_INLINE double GetPositionY() const { return yPosition; }
 		FORCE_INLINE double GetOffsetX() const { return xOffset; }
 		FORCE_INLINE double GetOffsetY() const { return yOffset; }
 	private:
@@ -60,8 +60,8 @@ namespace SerenEngine
 	class SEREN_API MouseScrolledEvent : public EventContext {
 	public:
 		MouseScrolledEvent(double offsetX, double offsetY) : xOffset(offsetX), yOffset(offsetY) {}
-		FORCE_INLINE double GetOffsetX() const { return xOffset; }
-		FORCE_INLINE double GetOffsetY() const { return yOffset; }
+		FORCE_INLINE double GetScrollX() const { return xOffset; }
+		FORCE_INLINE double GetScrollY() const { return yOffset; }
 	private:
 		double xOffset, yOffset;
 	};

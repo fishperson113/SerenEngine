@@ -11,6 +11,8 @@ namespace SerenEngine {
 
 	GLFWPlatformWindow::~GLFWPlatformWindow() 
 	{
+		FREE_MEMORY(m_WindowData.Input.Keyboard);
+		FREE_MEMORY(m_WindowData.Input.Mouse);
 	}
 
 	bool GLFWPlatformWindow::Init(const ApplicationConfiguration& config, EventDispatcher* eventDispatcher)
@@ -38,7 +40,8 @@ namespace SerenEngine {
 		glfwMakeContextCurrent(m_Window);
 
 		m_WindowData.Dispatcher = eventDispatcher;
-
+		m_WindowData.Input.Keyboard = WindowPlatform::CreateKeyboard(config.WindowSpec, m_Window);
+		m_WindowData.Input.Mouse = WindowPlatform::CreateMouse(config.WindowSpec, m_Window);
 		glfwSetWindowUserPointer(m_Window, &m_WindowData);
 
 		glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height) {
@@ -50,6 +53,53 @@ namespace SerenEngine {
 			WindowResizedEvent eventContext(width, height);
 			data->Dispatcher->DispatchEvent<WindowResizedEvent>(eventContext);
 		});
+		glfwSetKeyCallback(m_Window, [](GLFWwindow* window, int keyCode, int scanCode, int action, int mods) {
+			WindowData* data = (WindowData*)glfwGetWindowUserPointer(window);
+			//TODO: Held event
+			if (action == GLFW_PRESS) {
+				data->Dispatcher->DispatchEvent<KeyPressedEvent>({ keyCode });
+			}
+			else if (action == GLFW_REPEAT) {
+				data->Dispatcher->DispatchEvent<KeyHeldEvent>({ keyCode });
+			}
+			else if (action == GLFW_RELEASE) {
+				data->Dispatcher->DispatchEvent<KeyReleasedEvent>({ keyCode });
+			}
+			});
+
+		glfwSetMouseButtonCallback(m_Window, [](GLFWwindow* window, int button, int action, int mods) {
+			WindowData* data = (WindowData*)glfwGetWindowUserPointer(window);
+			//TODO: Held event
+			if (action == GLFW_PRESS) {
+				data->Dispatcher->DispatchEvent<MouseButtonPressedEvent>({ button });
+			}
+			else if (action == GLFW_RELEASE) {
+				data->Dispatcher->DispatchEvent<MouseButtonReleasedEvent>({ button });
+			}
+			});
+
+		glfwSetCursorPosCallback(m_Window, [](GLFWwindow* window, double positionX, double positionY) {
+			WindowData* data = (WindowData*)glfwGetWindowUserPointer(window);
+
+			static double lastFrameX = positionX;
+			static double lastFrameY = positionY;
+
+			double offsetX = positionX - lastFrameX;
+			double offsetY = positionY - lastFrameY;
+
+			data->Dispatcher->DispatchEvent<MouseMovedEvent>({ positionX, positionY, offsetX, offsetY });
+			data->Input.Mouse->SetPosition(positionX, positionY);
+			data->Input.Mouse->SetOffset(offsetX, offsetY);
+
+			lastFrameX = positionX;
+			lastFrameY = positionY;
+			});
+
+		glfwSetScrollCallback(m_Window, [](GLFWwindow* window, double scrollX, double scrollY) {
+			WindowData* data = (WindowData*)glfwGetWindowUserPointer(window);
+			data->Dispatcher->DispatchEvent<MouseScrolledEvent>({ scrollX, scrollY });
+			data->Input.Mouse->SetScroll(scrollX, scrollY);
+			});
 
 		if (!gladLoadGL((GLADloadfunc)glfwGetProcAddress))
 		{
@@ -78,5 +128,9 @@ namespace SerenEngine {
 	bool GLFWPlatformWindow::ShouldClose()
 	{
 		return glfwWindowShouldClose(m_Window);
+	}
+	InputState* GLFWPlatformWindow::GetInputState()
+	{
+		return &m_WindowData.Input;
 	}
 }

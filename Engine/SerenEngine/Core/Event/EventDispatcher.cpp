@@ -2,20 +2,16 @@
 
 namespace SerenEngine
 {
-	EventDispatcher::EventDispatcher() :m_EventMap()
-	{
+	EventDispatcher::EventDispatcher() : mEventActionMap() {
 	}
 
-	EventDispatcher::~EventDispatcher()
-	{
-		for (auto& pair : m_EventMap)
-		{
-			for (auto eventAction : pair.second)
-			{
+	EventDispatcher::~EventDispatcher() {
+		for (auto& pair : mEventActionMap) {
+			for (auto eventAction : pair.second) {
 				FREE_MEMORY(eventAction);
 			}
 			pair.second.clear();
 		}
-		m_EventMap.clear();
+		mEventActionMap.clear();
 	}
 }

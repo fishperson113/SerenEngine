@@ -72,3 +72,15 @@ template<typename T> using Unique = std::unique_ptr<T>;
 
 #define BIND_EVENT_FUNCTION(function) [this](auto&... args) -> decltype(auto)\
 	{ return this->function(std::forward<decltype(args)>(args)...); }
+
+#define INVALID_ID 0
+
+namespace SerenEngine {
+	using UUID = size_t;
+	UUID SEREN_API GetUUID();
+	template<typename T>
+	UUID SEREN_API GetTypeUUID() {
+		static UUID uuid = GetUUID();
+		return uuid;
+	}
+}
