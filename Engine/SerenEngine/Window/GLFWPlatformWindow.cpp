@@ -13,7 +13,7 @@ namespace SerenEngine {
 	{
 	}
 
-	bool GLFWPlatformWindow::Init(const ApplicationConfiguration& config)
+	bool GLFWPlatformWindow::Init(const ApplicationConfiguration& config, EventDispatcher* eventDispatcher)
 	{
 		if (!glfwInit())
 		{
@@ -36,6 +36,20 @@ namespace SerenEngine {
 		CORE_LOG_INFO("Window created succesful");
 
 		glfwMakeContextCurrent(m_Window);
+
+		m_WindowData.Dispatcher = eventDispatcher;
+
+		glfwSetWindowUserPointer(m_Window, &m_WindowData);
+
+		glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height) {
+			glViewport(0, 0, width, height);
+
+			WindowData* data = static_cast<WindowData*> (glfwGetWindowUserPointer(window));
+			data->Width = width;
+			data->Height = height;
+			WindowResizedEvent eventContext(width, height);
+			data->Dispatcher->DispatchEvent<WindowResizedEvent>(eventContext);
+		});
 
 		if (!gladLoadGL((GLADloadfunc)glfwGetProcAddress))
 		{

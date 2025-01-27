@@ -1,6 +1,7 @@
 #pragma once
 #include"pch.h"
 #include "Window/Window.h"
+#include <Core/Event/EventDispatcher.h>
 namespace SerenEngine
 {
 	struct SEREN_API ApplicationConfiguration
@@ -23,8 +24,11 @@ namespace SerenEngine
 		Application() = default;
 		Application(const ApplicationConfiguration& config);
 	private:
+		bool OnWindowResizedEvent(const WindowResizedEvent& event);
+	private:
 		ApplicationConfiguration m_Config;
 		Unique<INativeWindow> m_NativeWindow;
+		EventDispatcher m_EventDispatcher;
 	};
 	extern Application* CreateApplication();
 }
