@@ -8,6 +8,7 @@ namespace SerenEngine
 	{
 		GLFW,
 		SDL,
+		WinAPI,
 		NONE
 	};
 	class EventDispatcher; 

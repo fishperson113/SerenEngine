@@ -1,54 +1,59 @@
 #include"Application.h"
+#define DISPATCH_LAYER_EVENT(eventType, eventContext) for (auto iter = mLayerStack->rbegin(); iter != mLayerStack->rend(); ++iter) {\
+	if ((*iter)->On##eventType(eventContext)) {\
+		break;\
+	}\
+}
 namespace SerenEngine
 {
 	Application::Application(const ApplicationConfiguration& config): m_Config(config),m_EventDispatcher(){
 		m_NativeWindow.reset(WindowPlatform::Create(m_Config.WindowSpec));
-
+		mLayerStack.reset(new LayerStack());
 	}
 
-	bool Application::OnWindowResizedEvent(const WindowResizedEvent& windowResiedEvent)
+	bool Application::OnWindowResizedEvent(const WindowResizedEvent& eventContext)
 	{
-		CORE_LOG_TRACE("Window Resized Event {0} {1}", windowResiedEvent.GetWidth(), windowResiedEvent.GetHeight());
+		DISPATCH_LAYER_EVENT(WindowResizedEvent, eventContext);
 		return false;
 	}
 
 	bool Application::OnKeyPressedEvent(const KeyPressedEvent& eventContext) {
-		CORE_LOG_TRACE("Key {0} is pressed", (char)eventContext.GetKeyCode());
+		DISPATCH_LAYER_EVENT(KeyPressedEvent, eventContext);
 		return false;
 	}
 
 	bool Application::OnKeyHeldEvent(const KeyHeldEvent& eventContext) {
-		CORE_LOG_TRACE("Key {0} is held", (char)eventContext.GetKeyCode());
+		DISPATCH_LAYER_EVENT(KeyHeldEvent, eventContext);
 		return false;
 	}
 
 	bool Application::OnKeyReleasedEvent(const KeyReleasedEvent& eventContext) {
-		CORE_LOG_TRACE("Key {0} is released", (char)eventContext.GetKeyCode());
+		DISPATCH_LAYER_EVENT(KeyReleasedEvent, eventContext);
 		return false;
 	}
 
 	bool Application::OnMouseMovedEvent(const MouseMovedEvent& eventContext) {
-		CORE_LOG_TRACE("Mouse position: {0}, {1}. Mouse relative: {2}, {3}", eventContext.GetPositionX(), eventContext.GetPositionY(), eventContext.GetOffsetX(), eventContext.GetOffsetY());
+		DISPATCH_LAYER_EVENT(MouseMovedEvent, eventContext);
 		return false;
 	}
 
 	bool Application::OnMouseScrolledEvent(const MouseScrolledEvent& eventContext) {
-		CORE_LOG_TRACE("Mouse scroll X: {0}, Mouse Scroll Y: {1}", eventContext.GetScrollX(), eventContext.GetScrollY());
+		DISPATCH_LAYER_EVENT(MouseScrolledEvent, eventContext);
 		return false;
 	}
 
 	bool Application::OnMouseButtonPressedEvent(const MouseButtonPressedEvent& eventContext) {
-		CORE_LOG_TRACE("Mouse button {0} is pressed", eventContext.GetButton());
+		DISPATCH_LAYER_EVENT(MouseButtonPressedEvent, eventContext);	
 		return false;
 	}
 
 	bool Application::OnMouseButtonHeldEvent(const MouseButtonHeldEvent& eventContext) {
-		CORE_LOG_TRACE("Mouse button {0} is held", eventContext.GetButton());
+		DISPATCH_LAYER_EVENT(MouseButtonHeldEvent, eventContext);
 		return false;
 	}
 
 	bool Application::OnMouseButtonReleasedEvent(const MouseButtonReleasedEvent& eventContext) {
-		CORE_LOG_TRACE("Mouse button {0} is released", eventContext.GetButton());
+		DISPATCH_LAYER_EVENT(MouseButtonReleasedEvent, eventContext);
 		return false;
 	}
 
@@ -81,8 +86,18 @@ namespace SerenEngine
 		while (!m_NativeWindow->ShouldClose())
 		{
 			m_NativeWindow->SwapBuffers();
-			
+			for (auto layer : *mLayerStack.get()) {
+				layer->OnProcessInput(*m_InputState);
+			}
+
+			for (auto layer : *mLayerStack.get()) {
+				layer->OnUpdate(0.0f);
+			}
 			m_NativeWindow->PollEvents();
+
+			for (auto layer : *mLayerStack.get()) {
+				layer->OnRender();
+			}
 		}
 
 		OnShutdownClient();
@@ -90,5 +105,22 @@ namespace SerenEngine
 	void Application::Shutdown()
 	{
 		m_NativeWindow->Shutdown();
+	}
+	void Application::PushLayer(Layer* layer) {
+		mLayerStack->Push(layer);
+		layer->OnAttach();
+	}
+	void Application::PushOverlayLayer(Layer* layer) {
+		mLayerStack->PushOverlay(layer);
+		layer->OnAttach();
+	}
+	void Application::PopLayer(Layer* layer) {
+		mLayerStack->Pop(layer);
+		layer->OnDetach();
+	}
+
+	void Application::PopOverlayLayer(Layer* layer) {
+		mLayerStack->PopOverlay(layer);
+		layer->OnDetach();
 	}
 }

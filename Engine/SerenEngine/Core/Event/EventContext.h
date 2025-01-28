@@ -1,7 +1,7 @@
 #pragma once
 
 #include "pch.h"
-
+#include"Core/Input/KeyCode.h"
 namespace SerenEngine
 {
 	class SEREN_API EventContext
@@ -9,6 +9,7 @@ namespace SerenEngine
 	public:
 		virtual ~EventContext() = default;
 	};
+
 	class SEREN_API WindowResizedEvent : public EventContext
 	{
 	private:
@@ -19,10 +20,13 @@ namespace SerenEngine
 		FORCE_INLINE int32_t GetWidth() const { return m_Width; }
 		FORCE_INLINE int32_t GetHeight() const { return m_Height; }
 	};
-	class SEREN_API KeyPressedEvent : public EventContext {
+
+	class SEREN_API KeyPressedEvent : public EventContext 
+	{
 	public:
 		KeyPressedEvent(int32_t keyCode) : mKeyCode(keyCode) {}
-		FORCE_INLINE int32_t GetKeyCode() const { return mKeyCode; }
+		FORCE_INLINE int32_t GetKeyCode() const {return mKeyCode;}
+		FORCE_INLINE bool IsKey(EKeyCode keyCode) const { return mKeyCode == (int32_t)keyCode; }
 	private:
 		int32_t mKeyCode;
 	};
@@ -31,6 +35,7 @@ namespace SerenEngine
 	public:
 		KeyHeldEvent(int32_t keyCode) : mKeyCode(keyCode) {}
 		FORCE_INLINE int32_t GetKeyCode() const { return mKeyCode; }
+		FORCE_INLINE bool IsKey(EKeyCode keyCode) const { return mKeyCode == (int32_t)keyCode; }
 	private:
 		int32_t mKeyCode;
 	};
@@ -39,6 +44,7 @@ namespace SerenEngine
 	public:
 		KeyReleasedEvent(int32_t keyCode) : mKeyCode(keyCode) {}
 		FORCE_INLINE int32_t GetKeyCode() const { return mKeyCode; }
+		FORCE_INLINE bool IsKey(EKeyCode keyCode) const { return mKeyCode == (int32_t)keyCode; }
 	private:
 		int32_t mKeyCode;
 	};
@@ -70,6 +76,7 @@ namespace SerenEngine
 	public:
 		MouseButtonPressedEvent(int32_t button) : mButton(button) {}
 		FORCE_INLINE int32_t GetButton() const { return mButton; }
+		FORCE_INLINE bool IsButton(EMouseButton button) const { return mButton == (int32_t)button; }
 	private:
 		int32_t mButton;
 	};
@@ -78,6 +85,7 @@ namespace SerenEngine
 	public:
 		MouseButtonHeldEvent(int32_t button) : mButton(button) {}
 		FORCE_INLINE int32_t GetButton() const { return mButton; }
+		FORCE_INLINE bool IsButton(EMouseButton button) const { return mButton == (int32_t)button; }
 	private:
 		int32_t mButton;
 	};
@@ -86,6 +94,7 @@ namespace SerenEngine
 	public:
 		MouseButtonReleasedEvent(int32_t button) : mButton(button) {}
 		FORCE_INLINE int32_t GetButton() const { return mButton; }
+		FORCE_INLINE bool IsButton(EMouseButton button) const { return mButton == (int32_t)button; }
 	private:
 		int32_t mButton;
 	};

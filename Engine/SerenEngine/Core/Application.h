@@ -4,6 +4,8 @@
 #include"Window/WindowPlatform.h"
 #include <Core/Event/EventDispatcher.h>
 #include"Core/Logger/Logger.h"
+#include "Layer/LayerStack.h"
+
 namespace SerenEngine
 {
 	struct SEREN_API ApplicationConfiguration
@@ -25,6 +27,11 @@ namespace SerenEngine
 	protected:
 		Application() = default;
 		Application(const ApplicationConfiguration& config);
+
+		void PushLayer(Layer*);
+		void PushOverlayLayer(Layer*);
+		void PopLayer(Layer*);
+		void PopOverlayLayer(Layer*);
 	private:
 		bool OnWindowResizedEvent(const WindowResizedEvent& event);
 		bool OnKeyPressedEvent(const KeyPressedEvent&);
@@ -40,6 +47,7 @@ namespace SerenEngine
 		Unique<INativeWindow> m_NativeWindow;
 		EventDispatcher m_EventDispatcher;
 		InputState* m_InputState;
+		Unique<LayerStack> mLayerStack;
 	};
 	extern Application* CreateApplication();
 }
