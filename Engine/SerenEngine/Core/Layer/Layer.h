@@ -1,6 +1,7 @@
 #pragma once
 #include "pch.h"
 #include<Core/Event/EventContext.h>
+#include<Core/Time/Time.h>
 namespace SerenEngine {
 	class SEREN_API Layer
 	{
@@ -13,7 +14,7 @@ namespace SerenEngine {
 		virtual void OnDetach() {}
 
 		virtual void OnProcessInput(const struct InputState&) {}
-		virtual void OnUpdate(float deltaTime) {}
+		virtual void OnUpdate(Time deltaTime) {}
 		virtual void OnRender() {}
 
 		virtual bool OnWindowResizedEvent(const WindowResizedEvent&) { return false; }

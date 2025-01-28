@@ -133,4 +133,8 @@ namespace SerenEngine {
 	{
 		return &m_WindowData.Input;
 	}
+	float GLFWPlatformWindow::GetTimeSeconds()
+	{
+		return (float)glfwGetTime();
+	}
 }

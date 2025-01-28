@@ -30,6 +30,7 @@ namespace SerenEngine
 		virtual void PollEvents() = 0;
 		virtual bool ShouldClose() = 0;
 		virtual InputState* GetInputState() = 0;
+		virtual float GetTimeSeconds() = 0;
 	protected:
 		INativeWindow() = default;
 		INativeWindow(INativeWindow&) = default;
@@ -45,6 +46,7 @@ namespace SerenEngine
 		virtual void PollEvents() override;
 		virtual bool ShouldClose() override;
 		virtual InputState* GetInputState() override;
+		virtual float GetTimeSeconds() override;
 		GLFWwindow* GetWindow() const { return m_Window; }
 	private:
 		GLFWwindow* m_Window;

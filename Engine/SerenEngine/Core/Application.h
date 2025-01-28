@@ -5,7 +5,7 @@
 #include <Core/Event/EventDispatcher.h>
 #include"Core/Logger/Logger.h"
 #include "Layer/LayerStack.h"
-
+#include "Core/Time/Time.h"
 namespace SerenEngine
 {
 	struct SEREN_API ApplicationConfiguration
@@ -14,6 +14,7 @@ namespace SerenEngine
 		int WindowHeight;
 		const char* WindowTitle;
 		EWindowPlatformSpec WindowSpec;
+		uint16_t MaxFPS;
 	};
 	class SEREN_API Application
 	{
@@ -48,6 +49,8 @@ namespace SerenEngine
 		EventDispatcher m_EventDispatcher;
 		InputState* m_InputState;
 		Unique<LayerStack> mLayerStack;
+		Time m_Time;
+		bool mIsRunning;
 	};
 	extern Application* CreateApplication();
 }

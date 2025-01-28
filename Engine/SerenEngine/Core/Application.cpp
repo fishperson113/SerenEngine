@@ -6,7 +6,7 @@
 }
 namespace SerenEngine
 {
-	Application::Application(const ApplicationConfiguration& config): m_Config(config),m_EventDispatcher(){
+	Application::Application(const ApplicationConfiguration& config): m_Config(config),m_EventDispatcher(),mIsRunning(true){
 		m_NativeWindow.reset(WindowPlatform::Create(m_Config.WindowSpec));
 		mLayerStack.reset(new LayerStack());
 	}
@@ -18,6 +18,10 @@ namespace SerenEngine
 	}
 
 	bool Application::OnKeyPressedEvent(const KeyPressedEvent& eventContext) {
+		if (eventContext.IsKey(EKeyCode::ESCAPE)) {
+			mIsRunning = false;
+			return true;
+		}
 		DISPATCH_LAYER_EVENT(KeyPressedEvent, eventContext);
 		return false;
 	}
@@ -81,19 +85,39 @@ namespace SerenEngine
 	void Application::Run()
 	{
 		CORE_LOG_INFO("Application is running {0} {1} {2}", m_Config.WindowHeight, m_Config.WindowWidth, m_Config.WindowTitle);
+		const float MAX_DELTA_TIME = 0.05f;
+		float minDeltaTime = 1.0f / m_Config.MaxFPS;
 		OnInitClient();
 
-		while (!m_NativeWindow->ShouldClose())
+		while (mIsRunning && !m_NativeWindow->ShouldClose())
 		{
-			m_NativeWindow->SwapBuffers();
+			static float lastFrameTime = 0.0f;
+
+			while (m_NativeWindow->GetTimeSeconds() - lastFrameTime < minDeltaTime);
+
+			float currentFrameTime = m_NativeWindow->GetTimeSeconds();
+
+			m_Time = currentFrameTime - lastFrameTime;
+			lastFrameTime = currentFrameTime;
+
+			m_NativeWindow->PollEvents();
 			for (auto layer : *mLayerStack.get()) {
 				layer->OnProcessInput(*m_InputState);
 			}
+			m_NativeWindow->SwapBuffers();
+			while (m_Time.GetDeltaTime() > MAX_DELTA_TIME) {
+				for (auto layer : *mLayerStack.get()) {
+					layer->OnUpdate(MAX_DELTA_TIME);
+				}
+				for (auto layer : *mLayerStack.get()) {
+					layer->OnRender();
+				}
+				m_Time -= MAX_DELTA_TIME;
+			}
 
 			for (auto layer : *mLayerStack.get()) {
-				layer->OnUpdate(0.0f);
+				layer->OnUpdate(m_Time);
 			}
-			m_NativeWindow->PollEvents();
 
 			for (auto layer : *mLayerStack.get()) {
 				layer->OnRender();
