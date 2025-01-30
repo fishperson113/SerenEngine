@@ -1,7 +1,59 @@
 #pragma once
 #include <Core/Layer/Layer.h>
 #include<Core/Logger/Logger.h>
-#include<Core/Memory/MemoryAllocator.h>
+#include<Core/Memory/MemoryChunkManager.h>
+static size_t Count = 0;
+
+struct Texture {
+	Texture() {
+		ID = Count++;
+	}
+
+	uint32_t ID;
+	std::string FilePath;
+};
+using namespace SerenEngine;
+class ResourceManager {
+
+	class TextureManager : public MemoryChunkManager<Texture, 4> {
+	public:
+		TextureManager(const char* usage, const MemoryConfiguration& config) : MemoryChunkManager(usage, config) {
+
+		}
+
+		Texture* LoadTexture() {
+			return NewObject();
+		}
+
+		void UnLoad(void* memory) {
+			FreeObject(memory);
+		}
+	};
+
+public:
+	ResourceManager() : mTextureManager("TextureManager", {}) {
+
+	}
+
+	Texture* LoadTexture() {
+		return mTextureManager.LoadTexture();
+	}
+
+	void UnloadTexture(void* memory) {
+		mTextureManager.UnLoad(memory);
+	}
+
+	void UnloadAllTextures() {
+		mTextureManager.Reset();
+	}
+
+	void Shutdown() {
+		mTextureManager.DetecMemoryLeaks();
+	}
+
+private:
+	TextureManager mTextureManager;
+};
 class GameplayLayer : public SerenEngine::Layer
 {
 public:
@@ -10,130 +62,30 @@ public:
 	virtual void OnAttach() override {
 		LOG_TRACE("GameplayLayer is attached");
 
-		size_t size = 128 * 1024 * 1024;
+		std::vector<Texture*> textures;
 
-		struct GameObject {
-			size_t ID = 0;
-			std::string Name = "GameObject";
-		};
-
-		mLinearAllocator = new SerenEngine::LinearAllocator(size, malloc(size));
-		mStackAllocator = new SerenEngine::StackAllocator(size, malloc(size));
-		mPoolAllocator = new SerenEngine::PoolAllocator(size, malloc(size), sizeof(GameObject), alignof(GameObject));
-
-		int numOfObjects = 100000;
-		std::vector<GameObject*> objects;
-
-		// NEW and DELETE operator
-		auto startTime = std::chrono::high_resolution_clock::now();
-		for (int i = 0; i < numOfObjects; i++) {
-			GameObject* go = new GameObject();
-			go->ID = i;
-			objects.emplace_back(go);
+		int count = 10;
+		for (int i = 0; i < count; i++) {
+			textures.emplace_back(mResourceManager.LoadTexture());
 		}
 
-		for (GameObject* object : objects) {
-			FREE_MEMORY(object);
+		mResourceManager.UnloadTexture(textures[1]);
+		mResourceManager.UnloadTexture(textures[9]);
+
+		mResourceManager.LoadTexture();
+		mResourceManager.LoadTexture();
+
+		mResourceManager.UnloadAllTextures();
+		textures.clear();
+
+		for (int i = 0; i < count; i++) {
+			textures.emplace_back(mResourceManager.LoadTexture());
 		}
 
-		objects.clear();
+		mResourceManager.UnloadAllTextures();
+		mResourceManager.Shutdown();
 
-		for (int i = 0; i < numOfObjects; i++) {
-			GameObject* go = new GameObject();
-			go->ID = i;
-			objects.emplace_back(go);
-		}
-
-		for (GameObject* object : objects) {
-			FREE_MEMORY(object);
-		}
-
-		objects.clear();
-
-		auto endTime = std::chrono::high_resolution_clock::now();
-		std::chrono::duration<double, std::milli> duration = endTime - startTime;
-		CORE_LOG_INFO("Delete operator takes: {0} seconds", duration.count() / 1000.0f);
-
-		// LINEAR ALLOCATOR
-		startTime = std::chrono::high_resolution_clock::now();
-
-		for (int i = 0; i < numOfObjects; i++) {
-			void* memory = mLinearAllocator->Allocate(sizeof(GameObject), alignof(GameObject));
-			GameObject* go = new (memory)GameObject();
-			go->ID = i;
-			objects.emplace_back(go);
-		}
-
-		mLinearAllocator->Clear();
-		objects.clear();
-
-		for (int i = 0; i < numOfObjects; i++) {
-			void* memory = mLinearAllocator->Allocate(sizeof(GameObject), alignof(GameObject));
-			GameObject* go = new (memory)GameObject();
-			go->ID = i;
-			objects.emplace_back(go);
-		}
-
-		mLinearAllocator->Clear();
-		objects.clear();
-
-		endTime = std::chrono::high_resolution_clock::now();
-		duration = endTime - startTime;
-		CORE_LOG_INFO("LinearAllocator takes: {0} seconds", duration.count() / 1000.0f);
-
-		// STACK ALLOCATOR
-		startTime = std::chrono::high_resolution_clock::now();
-		for (int i = 0; i < numOfObjects; i++) {
-			void* memory = mStackAllocator->Allocate(sizeof(GameObject), alignof(GameObject));
-			GameObject* go = new (memory)GameObject();
-			go->ID = i;
-			objects.emplace_back(go);
-		}
-
-		mStackAllocator->Clear();
-		objects.clear();
-
-		for (int i = 0; i < numOfObjects; i++) {
-			void* memory = mStackAllocator->Allocate(sizeof(GameObject), alignof(GameObject));
-			GameObject* go = new (memory)GameObject();
-			go->ID = i;
-			objects.emplace_back(go);
-		}
-
-		mStackAllocator->Clear();
-		objects.clear();
-
-		endTime = std::chrono::high_resolution_clock::now();
-		duration = endTime - startTime;
-		CORE_LOG_INFO("StackAllocator takes: {0} seconds", duration.count() / 1000.0f);
-
-		// Pool ALLOCATOR
-		startTime = std::chrono::high_resolution_clock::now();
-		for (int i = 0; i < numOfObjects; i++) {
-			void* memory = mPoolAllocator->AllocateChunk();
-			GameObject* go = new (memory)GameObject();
-			go->ID = i;
-			objects.emplace_back(go);
-		}
-
-		mPoolAllocator->Clear();
-		objects.clear();
-
-		for (int i = 0; i < numOfObjects; i++) {
-			void* memory = mPoolAllocator->AllocateChunk();
-			GameObject* go = new (memory)GameObject();
-			go->ID = i;
-			objects.emplace_back(go);
-		}
-
-		mPoolAllocator->Clear();
-		objects.clear();
-
-		endTime = std::chrono::high_resolution_clock::now();
-		duration = endTime - startTime;
-		CORE_LOG_INFO("PoolAllocator takes: {0} seconds", duration.count() / 1000.0f);
-
-		CORE_LOG_TRACE("DONE TESTING MEMROY ALLOCATOR");
+		CORE_LOG_WARN("Testing point");
 	}
 	virtual void OnDetach() override {
 		LOG_TRACE("GameplayLayer is detached");
@@ -146,7 +98,5 @@ public:
 		//LOG_TRACE("GameplayLayer is updated at {0} ", deltaTime.GetDeltaTime());
 	}
 private:
-	SerenEngine::LinearAllocator* mLinearAllocator;
-	SerenEngine::StackAllocator* mStackAllocator;
-	SerenEngine::PoolAllocator* mPoolAllocator;
+	ResourceManager mResourceManager;
 };

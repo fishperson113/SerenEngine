@@ -1,7 +1,7 @@
 #pragma once
 #include"pch.h"
-#include "Window/Window.h"
-#include"Window/WindowPlatform.h"
+#include "Platform/Window.h"
+#include"Platform/WindowPlatform.h"
 #include <Core/Event/EventDispatcher.h>
 #include"Core/Logger/Logger.h"
 #include "Layer/LayerStack.h"

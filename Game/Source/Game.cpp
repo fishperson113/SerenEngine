@@ -1,5 +1,5 @@
 #include <SerenEngine/Core/EntryPoint.h>
-#include <SerenEngine/Window/Window.h>
+#include <SerenEngine/Platform/Window.h>
 #include <Core/Logger/Logger.h>
 #include"GameplayLayer.h"
 class Game : public SerenEngine::Application

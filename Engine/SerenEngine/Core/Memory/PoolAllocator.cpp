@@ -19,7 +19,7 @@ namespace SerenEngine {
 	}
 	PoolAllocator::~PoolAllocator() {
 	}
-	void* PoolAllocator::AllocateChunk() {
+	void* PoolAllocator::Allocate() {
 		FreeNode* node = mFreeListHead;
 		ASSERT(node != nullptr && "PoolAllocator is full, no more chunk to allocate");
 		mFreeListHead = node->Next;
@@ -29,14 +29,7 @@ namespace SerenEngine {
 	}
 	void PoolAllocator::Free(void* memory) {
 		ASSERT(memory != nullptr && "Free invalid memory address");
-		uintptr_t numberOfChunks = mMemorySize / mChunkSize;
-		union {
-			void* asVoidPtrAddress;
-			char* asCharPtrAddress;
-		};
-		asVoidPtrAddress = mStartAddress;
-		bool isInBound = memory >= asVoidPtrAddress && memory < asCharPtrAddress + mAddressOffset + (numberOfChunks - 1) * mChunkSize;
-		ASSERT(isInBound && "Free out of bound memory address");
+		ASSERT(Contains(memory) && "Free out of bound memory address");
 		FreeNode* node = reinterpret_cast<FreeNode*>(memory);
 		node->Next = mFreeListHead;
 		mFreeListHead = node;
@@ -57,5 +50,15 @@ namespace SerenEngine {
 		}
 		mUsedMemory = 0;
 		mAllocationCount = 0;
+	}
+	bool PoolAllocator::Contains(void* memory) {
+		union {
+			void* asVoidPtrAddress;
+			uintptr_t asUintPtrAddress;
+		};
+		asVoidPtrAddress = mStartAddress;
+		uintptr_t numberOfChunks = mMemorySize / mChunkSize;
+		uintptr_t uintPtrMemory = reinterpret_cast<uintptr_t>(memory);
+		return uintPtrMemory >= asUintPtrAddress && uintPtrMemory <= asUintPtrAddress + mAddressOffset + (numberOfChunks - 1) * mChunkSize;
 	}
 }
