@@ -1,40 +1,42 @@
 #pragma once
+
 #include"pch.h"
-#include "Platform/Window.h"
 #include"Platform/WindowPlatform.h"
-#include <Core/Event/EventDispatcher.h>
-#include"Core/Logger/Logger.h"
-#include "Layer/LayerStack.h"
-#include "Core/Time/Time.h"
-namespace SerenEngine
-{
-	struct SEREN_API ApplicationConfiguration
-	{
-		int WindowWidth;
-		int WindowHeight;
-		const char* WindowTitle;
+#include"Core/Event/EventDispatcher.h"
+#include"Core/Layer/LayerStack.h"
+#include"Core/Time/Time.h"
+
+namespace SerenEngine {
+	struct SEREN_API ApplicationConfiguration {
+		int Width, Height;
+		const char* Title;
 		EWindowPlatformSpec WindowSpec;
 		uint16_t MaxFPS;
 	};
-	class SEREN_API Application
-	{
+
+	namespace ECS {
+		class SystemManager;
+		class Coordinator;
+	}
+
+	class SEREN_API Application {
 	public:
 		virtual ~Application() = default;
 		bool Init();
-		virtual void OnInitClient()=0;
+		virtual void OnInitClient() = 0;
 		void Run();
-		void Shutdown();
 		virtual void OnShutdownClient() = 0;
+		void Shutdown();
 	protected:
 		Application() = default;
-		Application(const ApplicationConfiguration& config);
+		Application(const ApplicationConfiguration&);
 
 		void PushLayer(Layer*);
 		void PushOverlayLayer(Layer*);
 		void PopLayer(Layer*);
 		void PopOverlayLayer(Layer*);
 	private:
-		bool OnWindowResizedEvent(const WindowResizedEvent& event);
+		bool OnWindowResizedEvent(const WindowResizedEvent&);
 		bool OnKeyPressedEvent(const KeyPressedEvent&);
 		bool OnKeyHeldEvent(const KeyHeldEvent&);
 		bool OnKeyReleasedEvent(const KeyReleasedEvent&);
@@ -44,13 +46,16 @@ namespace SerenEngine
 		bool OnMouseButtonHeldEvent(const MouseButtonHeldEvent&);
 		bool OnMouseButtonReleasedEvent(const MouseButtonReleasedEvent&);
 	private:
-		ApplicationConfiguration m_Config;
-		Unique<INativeWindow> m_NativeWindow;
-		EventDispatcher m_EventDispatcher;
-		InputState* m_InputState;
-		Unique<LayerStack> mLayerStack;
-		Time m_Time;
+		ApplicationConfiguration mConfig;
+		Unique<INativeWindow> mNativeWindow;
+		LayerStack* mLayerStack;
+		ECS::SystemManager* mSystemManager;
+		ECS::Coordinator* mCoordinator;
+		EventDispatcher mEventDispatcher;
+		class InputState* mInputState;
+		Time mTime;
 		bool mIsRunning;
 	};
+
 	extern Application* CreateApplication();
 }

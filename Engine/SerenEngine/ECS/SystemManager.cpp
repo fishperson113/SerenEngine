@@ -4,6 +4,7 @@
 #include"Memory/MemoryMonitor.h"
 namespace SerenEngine {
 	namespace ECS {
+		DEFINE_RTTI_NO_PARENT(SystemManager)
 		SystemManager::SystemManager() : MemoryManager(), mSystemIdx(0), mRebuildSystemWorkOrder(false) {
 		}
 		SystemManager::SystemManager(Coordinator* coordinator) : MemoryManager(), mCoordinator(coordinator), mSystemIdx(0), mRebuildSystemWorkOrder(false) {
@@ -34,7 +35,9 @@ namespace SerenEngine {
 					system->OnUpdate(time);
 					intervalPassBy -= system->GetUpdateInterval();
 				}
-				system->SetLastUpdateTime(intervalPassBy);
+				else {
+					system->SetLastUpdateTime(intervalPassBy);
+				}
 			}
 		}
 		void SystemManager::OnShutdown() {

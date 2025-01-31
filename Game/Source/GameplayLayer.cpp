@@ -8,19 +8,6 @@ void GameplayLayer::OnAttach() {
 
 	MemoryManager* memoryManager = new MemoryManager();
 	{
-		auto systemManager = memoryManager->NewOnStack<SerenEngine::ECS::SystemManager>("SystemManager");
-		auto& collisionSystem = systemManager->AddSystem<SerenEngine::CollisionResolver>();
-		auto& animationSystem = systemManager->AddSystem<SerenEngine::AnimationSystem>();
-		auto& renderer2D = systemManager->AddSystem<SerenEngine::Renderer2D>();
-
-		systemManager->AddSystemDependency(&animationSystem, &collisionSystem);
-		systemManager->AddSystemDependency(&renderer2D, &collisionSystem, &animationSystem);
-		systemManager->OnInit();
-		systemManager->OnUpdate(0.0f);
-		systemManager->OnShutdown();
-		memoryManager->FreeOnStack(systemManager);
-	}
-	{
 		SerenEngine::ECS::Coordinator* coordinator = memoryManager->NewOnStack<SerenEngine::ECS::Coordinator>("Coordinator");
 		SerenEngine::Actor* actor = memoryManager->NewOnStack<SerenEngine::Actor>(SerenEngine::Actor::RunTimeType.GetTypeName(), coordinator);
 		actor->AddComponent<SerenEngine::TransformComponent>(2.0f, 3.0f);
@@ -39,6 +26,9 @@ void GameplayLayer::OnAttach() {
 		if (!actor->HasComponent<TransformComponent>()) {
 			LOG_WARN("Actor transform component has been removed");
 		}
+		memoryManager->FreeOnStack(actor);
+		memoryManager->FreeOnStack(coordinator);
+		coordinator->~Coordinator();
 	}
 	memoryManager->ClearOnStack();
 }

@@ -1,11 +1,14 @@
 #pragma once
 #include "Layer.h"
-
+#include"Core/Type/RTTI.h"
 namespace SerenEngine
 {
 	using LayerList = std::vector<Layer*>;
 	class SEREN_API LayerStack
 	{
+	public:
+		DECLARE_RTTI
+
 		class SEREN_API ReversedIterator {
 		public:
 			ReversedIterator() = default;

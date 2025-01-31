@@ -27,7 +27,7 @@ namespace SerenEngine {
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-		m_Window = glfwCreateWindow(config.WindowWidth, config.WindowHeight, config.WindowTitle, nullptr, nullptr);
+		m_Window = glfwCreateWindow(config.Width, config.Height, config.Title, nullptr, nullptr);
 
 		if (!m_Window)
 		{
