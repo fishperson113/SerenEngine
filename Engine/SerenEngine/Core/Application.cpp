@@ -1,4 +1,5 @@
 #include"Application.h"
+#include"Memory/MemoryMonitor.h"
 #define DISPATCH_LAYER_EVENT(eventType, eventContext) for (auto iter = mLayerStack->rbegin(); iter != mLayerStack->rend(); ++iter) {\
 	if ((*iter)->On##eventType(eventContext)) {\
 		break;\
@@ -94,6 +95,7 @@ namespace SerenEngine
 			static float lastFrameTime = 0.0f;
 
 			while (m_NativeWindow->GetTimeSeconds() - lastFrameTime < minDeltaTime);
+			MemoryMonitor::Get().Update();
 
 			float currentFrameTime = m_NativeWindow->GetTimeSeconds();
 
@@ -129,6 +131,8 @@ namespace SerenEngine
 	void Application::Shutdown()
 	{
 		m_NativeWindow->Shutdown();
+		MemoryMonitor::Get().Clear();
+		MemoryMonitor::Get().DectecMemoryLeaks();
 	}
 	void Application::PushLayer(Layer* layer) {
 		mLayerStack->Push(layer);

@@ -1,6 +1,7 @@
 #pragma once
 #include"MemoryManager.h"
 #include"Core/Logger/Logger.h"
+#include"Memory/MemoryMonitor.h"
 namespace SerenEngine {
 	template<typename T, std::size_t MAX_OBJECT_PER_CHUNK>
 	class MemoryChunkManager : public MemoryManager {
@@ -83,7 +84,7 @@ namespace SerenEngine {
 			typename ObjectList::const_iterator mCurrentObject;
 		};
 	public:
-		MemoryChunkManager(const char* usage, const MemoryConfiguration& config) : mUsage(usage), MemoryManager(config) {
+		MemoryChunkManager(const char* usage, const MemoryConfiguration& config = MemoryConfiguration()) : mUsage(usage), MemoryManager(config) {
 		}
 		~MemoryChunkManager() {
 		}
@@ -129,6 +130,7 @@ namespace SerenEngine {
 				(*iter)->Close();
 				FREE_MEMORY(*iter);
 			}
+			MemoryMonitor::Get().Remove(this);
 			mMemoryChunkList.clear();
 		}
 

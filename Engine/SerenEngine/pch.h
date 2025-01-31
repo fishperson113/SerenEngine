@@ -75,6 +75,7 @@ template<typename T> using Unique = std::unique_ptr<T>;
 
 #define INVALID_ID 0
 
+#define BASE_CLASS_ASSERT(baseClass, derivedClass, message) STATIC_ASSERT(std::is_base_of<baseClass, derivedClass>::value && message)
 namespace SerenEngine {
 	using UUID = size_t;
 	UUID SEREN_API GetUUID();

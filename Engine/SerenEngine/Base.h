@@ -3,7 +3,11 @@
 #include"Core/Type/Object.h"
 #include"Core/Logger/Logger.h"
 #include"Core/Event/EventContext.h"
-#include"Core/Memory/MemoryManager.h"
+#include"Memory/MemoryManager.h"
+#include"Core/Type/Actor.h"
+#include"Core/Type/Component.h"
+#include"Core/System/System.h"
+#include"ECS/SystemManager.h"
 namespace SerenEngine {
 	template<typename To, typename From>
 	FORCE_INLINE To StaticCast(From from) { return (To)from; }

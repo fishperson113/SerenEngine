@@ -1,10 +1,12 @@
 #include"MemoryManager.h"
 #include"Core/Logger/Logger.h"
+#include"MemoryMonitor.h"
 namespace SerenEngine {
 	MemoryManager::MemoryManager(const MemoryConfiguration& config) : mConfig(config),
 		mPerFrameAllocator(config.PerFrameBufferSize, malloc(config.PerFrameBufferSize)),
 		mStackAllocator(config.StackBufferSize, malloc(config.StackBufferSize))
 	{
+		MemoryMonitor::Get().Add(this);
 	}
 	MemoryManager::~MemoryManager() {
 	}
