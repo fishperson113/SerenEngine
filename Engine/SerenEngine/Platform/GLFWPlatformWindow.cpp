@@ -2,8 +2,6 @@
 #include<Core/Logger/Logger.h>
 #include<Core/Application.h>
 
-#define GLAD_GL_IMPLEMENTATION
-#include<glad/gl.h>
 #include<GLFW/glfw3.h>
 
 namespace SerenEngine {
@@ -117,8 +115,6 @@ namespace SerenEngine {
 	}
 	void GLFWPlatformWindow::SwapBuffers()
 	{
-		glClearColor(1.1f, 3.1f, 0.1f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
 		glfwSwapBuffers(m_Window);
 	}
 	void GLFWPlatformWindow::PollEvents()

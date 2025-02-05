@@ -29,6 +29,6 @@ private:
 };
 SerenEngine::Application* SerenEngine::CreateApplication()
 {
-	ApplicationConfiguration m_Config = { 1280, 720, "Seren Engine", EWindowPlatformSpec::GLFW ,60};
+	ApplicationConfiguration m_Config = { 1280, 720, "Seren Engine", EWindowPlatformSpec::GLFW ,60,ERendererSpec::OpenGL};
 	return new Game(m_Config);
 }

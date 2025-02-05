@@ -7,6 +7,7 @@
 #include"ECS/SystemManager.h"
 #include"ECS/Coordinator.h"
 #include"Core/System/System.h"
+#include"Renderer/Renderer.h"
 
 #define DISPATCH_LAYER_EVENT(eventType, eventContext) for (auto iter = mLayerStack->rbegin(); iter != mLayerStack->rend(); ++iter) {\
 	if ((*iter)->On##eventType(eventContext)) {\
@@ -15,13 +16,20 @@
 }
 
 namespace SerenEngine {
+	Application* Application::sInstance = nullptr;
+	Application& Application::Get() {
+		return *sInstance;
+	}
+
 	Application::Application(const ApplicationConfiguration& config) : mConfig(config), mEventDispatcher(),
-		mIsRunning(true), mInputState(nullptr), mTime()
+		mIsRunning(true), mInputState(nullptr), mTime(), mPerFrameData()
 	{
 		mNativeWindow.reset(WindowPlatform::Create(config.WindowSpec));
 		mLayerStack = GlobalMemoryUsage::Get().NewOnStack<LayerStack>(LayerStack::RunTimeType.GetTypeName());
 		mSystemManager = GlobalMemoryUsage::Get().NewOnStack<ECS::SystemManager>(ECS::SystemManager::RunTimeType.GetTypeName());
 		mCoordinator = GlobalMemoryUsage::Get().NewOnStack<ECS::Coordinator>(ECS::Coordinator::RunTimeType.GetTypeName());
+		mRenderer = GlobalMemoryUsage::Get().NewOnStack<Renderer>(Renderer::RunTimeType.GetTypeName());
+		sInstance = this;
 	}
 
 	bool Application::Init() {
@@ -44,17 +52,17 @@ namespace SerenEngine {
 		mEventDispatcher.AddEventListener<MouseButtonReleasedEvent>(BIND_EVENT_FUNCTION(OnMouseButtonReleasedEvent));
 
 
-		auto& collisionSystem = mSystemManager->AddSystem<CollisionResolver>();
+		/*auto& collisionSystem = mSystemManager->AddSystem<CollisionResolver>();
 		auto& animationSystem = mSystemManager->AddSystem<AnimationSystem>();
-		auto& renderer2D = mSystemManager->AddSystem<Renderer2D>();
+		auto& renderer2D = mSystemManager->AddSystem<Renderer2D>();*/
 
-		mSystemManager->AddSystemDependency(&animationSystem, &collisionSystem);
-		mSystemManager->AddSystemDependency(&renderer2D, &collisionSystem, &animationSystem);
+		/*mSystemManager->AddSystemDependency(&animationSystem, &collisionSystem);
+		mSystemManager->AddSystemDependency(&renderer2D, &collisionSystem, &animationSystem);*/
 
-		collisionSystem.SetUpdateInterval(5.0f);
+	/*	collisionSystem.SetUpdateInterval(5.0f);*/
 
 		mSystemManager->OnInit();
-
+		mRenderer->OnInit(mConfig);
 		return true;
 	}
 
@@ -86,6 +94,7 @@ namespace SerenEngine {
 
 			mNativeWindow->SwapBuffers();
 			while (mTime.GetDeltaTime() > MAX_DELTA_TIME) {
+				mPerFrameData.IsCatchUpPhase = true;
 				for (auto layer : *mLayerStack) {
 					layer->OnUpdate(MAX_DELTA_TIME);
 				}
@@ -95,6 +104,8 @@ namespace SerenEngine {
 				mTime -= MAX_DELTA_TIME;
 			}
 
+			mPerFrameData.IsCatchUpPhase = false;
+
 			for (auto layer : *mLayerStack) {
 				layer->OnUpdate(mTime);
 			}
@@ -102,15 +113,22 @@ namespace SerenEngine {
 			mSystemManager->OnUpdate(MAX_DELTA_TIME);
 
 			for (auto layer : *mLayerStack) {
-				layer->OnRender();
+				layer->OnGUIRender();
 			}
+			if (mRenderer->BeginScene()) {
+				mRenderer->Render();
+				mRenderer->EndScene();
+			}
+
+			MemoryMonitor::Get().Update();
+			mPerFrameData.FrameIndex++;
 		}
 
 		OnShutdownClient();
 	}
 
 	void Application::Shutdown() {
-		//GlobalMemoryUsage::Get().FreeOnStack(mLayerStack);
+		mRenderer->OnShutDown();
 		mSystemManager->OnShutdown();
 		mNativeWindow->Shutdown();
 		MemoryMonitor::Get().Clear();

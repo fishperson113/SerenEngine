@@ -1,10 +1,11 @@
 #include"GameplayLayer.h"
 #include<SerenEngine/Base.h>
 #include<Core/System/System.h>
+#include<Renderer/RenderCommand.h>
 using namespace SerenEngine;
 
 void GameplayLayer::OnAttach() {
-	LOG_TRACE("GameplayLayer is attached");
+	/*LOG_TRACE("GameplayLayer is attached");
 
 	MemoryManager* memoryManager = new MemoryManager();
 	{
@@ -30,13 +31,13 @@ void GameplayLayer::OnAttach() {
 		memoryManager->FreeOnStack(coordinator);
 		coordinator->~Coordinator();
 	}
-	memoryManager->ClearOnStack();
+	memoryManager->ClearOnStack();*/
 }
 void GameplayLayer::OnDetach() {
 	LOG_TRACE("GameplayLayer is detached");
 }
 void GameplayLayer::OnUpdate(Time time) {
-
+	SerenEngine::RenderCommand::ClearColor(.3f, 0.3f, 0.6f);
 }
 bool GameplayLayer::OnKeyPressedEvent(const KeyPressedEvent& eventContext) {
 	return false;

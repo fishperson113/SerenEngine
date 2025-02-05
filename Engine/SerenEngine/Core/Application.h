@@ -5,15 +5,19 @@
 #include"Core/Event/EventDispatcher.h"
 #include"Core/Layer/LayerStack.h"
 #include"Core/Time/Time.h"
-
+#include"Renderer/RendererAPI.h"
 namespace SerenEngine {
 	struct SEREN_API ApplicationConfiguration {
 		int Width, Height;
 		const char* Title;
 		EWindowPlatformSpec WindowSpec;
 		uint16_t MaxFPS;
+		ERendererSpec RendererSpec;
 	};
-
+	struct SEREN_API PerFrameData {
+		uint32_t FrameIndex = 0;
+		bool IsCatchUpPhase = false;
+	};
 	namespace ECS {
 		class SystemManager;
 		class Coordinator;
@@ -21,12 +25,17 @@ namespace SerenEngine {
 
 	class SEREN_API Application {
 	public:
+		static Application& Get();
+	private:
+		static Application* sInstance;
+	public:
 		virtual ~Application() = default;
 		bool Init();
 		virtual void OnInitClient() = 0;
 		void Run();
 		virtual void OnShutdownClient() = 0;
 		void Shutdown();
+		FORCE_INLINE const PerFrameData& GetPerFrameData() const { return mPerFrameData; }
 	protected:
 		Application() = default;
 		Application(const ApplicationConfiguration&);
@@ -51,10 +60,12 @@ namespace SerenEngine {
 		LayerStack* mLayerStack;
 		ECS::SystemManager* mSystemManager;
 		ECS::Coordinator* mCoordinator;
+		class Renderer* mRenderer;
 		EventDispatcher mEventDispatcher;
 		class InputState* mInputState;
 		Time mTime;
 		bool mIsRunning;
+		PerFrameData mPerFrameData;
 	};
 
 	extern Application* CreateApplication();
