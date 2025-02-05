@@ -2,10 +2,17 @@
 #include"pch.h"
 #include"Core/Type/RTTI.h"
 #include"Core/Application.h"
+#include"Core/Application.h"
+#include"RenderCommandQueue.h"
 namespace SerenEngine {
 	class SEREN_API Renderer {
 	public:
 		DECLARE_RTTI
+	public:
+		static void Submit(const RenderCallback&);
+		static void ClearColor(float r, float g, float b, float w = 1.0f);
+	private:
+		static RenderCommandQueue sRenderCommandQueue;
 	public:
 		Renderer();
 		~Renderer();

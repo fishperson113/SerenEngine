@@ -79,7 +79,6 @@ namespace SerenEngine {
 
 			while (mNativeWindow->GetTimeSeconds() - lastFrameTime < minDeltaTime);
 
-			MemoryMonitor::Get().Update();
 
 			float currentFrameTime = mNativeWindow->GetTimeSeconds();
 

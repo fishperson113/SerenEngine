@@ -1,7 +1,7 @@
 #include"GameplayLayer.h"
 #include<SerenEngine/Base.h>
 #include<Core/System/System.h>
-#include<Renderer/RenderCommand.h>
+#include<Renderer/Renderer.h>
 using namespace SerenEngine;
 
 void GameplayLayer::OnAttach() {
@@ -37,7 +37,7 @@ void GameplayLayer::OnDetach() {
 	LOG_TRACE("GameplayLayer is detached");
 }
 void GameplayLayer::OnUpdate(Time time) {
-	SerenEngine::RenderCommand::ClearColor(.3f, 0.3f, 0.6f);
+	SerenEngine::Renderer::ClearColor(1.0f, 0.3f, 0.6f);
 }
 bool GameplayLayer::OnKeyPressedEvent(const KeyPressedEvent& eventContext) {
 	return false;
