@@ -1,6 +1,6 @@
 #include"Actor.h"
 namespace SerenEngine {
-	DEFINE_RTTI(Actor, &Object::RunTimeType)
+	DEFINE_RTTI(Actor, Object::RunTimeType)
 
 	Actor::Actor(ECS::Coordinator* coordinator) : mCoordinator(coordinator) {
 		mID = mCoordinator->AddEntity();

@@ -17,5 +17,6 @@ namespace SerenEngine {
 		}
 	}
 	void RenderCommand::OnShutdown() {
+		GlobalMemoryUsage::Get().FreeOnStack(sInstance);
 	}
 }

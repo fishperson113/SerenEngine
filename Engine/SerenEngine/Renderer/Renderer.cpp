@@ -14,7 +14,22 @@ namespace SerenEngine {
 			RenderCommand::ClearColor(r, g, b, w);
 			});
 	}
+	void Renderer::EnableBlending(ERendererBlendFunction source, ERendererBlendFunction destination, ERendererBlendEquation blendEquation) {
+		Submit([source, destination, blendEquation]() {
+			RenderCommand::EnableBlending(source, destination, blendEquation);
+			});
+	}
 
+	void Renderer::DisableBlending() {
+		Submit([]() {
+			RenderCommand::DisableBlending();
+			});
+	}
+	void Renderer::DrawIndexed(uint32_t nums, ERendererPrimitive primitive, uint32_t offset) {
+		Submit([nums, primitive, offset]() {
+			RenderCommand::DrawIndexed(nums, primitive, offset);
+			});
+	}
 	Renderer::Renderer() {
 	}
 	Renderer::~Renderer() {

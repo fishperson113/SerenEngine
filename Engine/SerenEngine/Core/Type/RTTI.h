@@ -16,7 +16,7 @@ namespace SerenEngine {
 	static const SerenEngine::RTTI RunTimeType; \
 	virtual const SerenEngine::RTTI& GetRunTimeTypeInfo() const;
 #define DEFINE_RTTI(typeName, parent) \
-	const SerenEngine::RTTI typeName::RunTimeType(#typeName, parent); \
+	const SerenEngine::RTTI typeName::RunTimeType(#typeName, &parent); \
 	const SerenEngine::RTTI& typeName::GetRunTimeTypeInfo() const { return RunTimeType; }
 #define DEFINE_RTTI_NO_PARENT(typeName) \
 	const SerenEngine::RTTI typeName::RunTimeType(#typeName); \

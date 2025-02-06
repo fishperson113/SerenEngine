@@ -8,6 +8,7 @@
 #include"ECS/Coordinator.h"
 #include"Core/System/System.h"
 #include"Renderer/Renderer.h"
+#include"Resource/ResourceManager.h"
 
 #define DISPATCH_LAYER_EVENT(eventType, eventContext) for (auto iter = mLayerStack->rbegin(); iter != mLayerStack->rend(); ++iter) {\
 	if ((*iter)->On##eventType(eventContext)) {\
@@ -63,6 +64,7 @@ namespace SerenEngine {
 
 		mSystemManager->OnInit();
 		mRenderer->OnInit(mConfig);
+		ResourceManager::OnInit(mConfig.RendererSpec);
 		return true;
 	}
 
@@ -130,6 +132,7 @@ namespace SerenEngine {
 		mRenderer->OnShutDown();
 		mSystemManager->OnShutdown();
 		mNativeWindow->Shutdown();
+		ResourceManager::OnShutdown();
 		MemoryMonitor::Get().Clear();
 		MemoryMonitor::Get().DectecMemoryLeaks();
 	}

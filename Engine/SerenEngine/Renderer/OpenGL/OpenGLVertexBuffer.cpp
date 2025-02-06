@@ -1,0 +1,39 @@
+#include"OpenGLVertexBuffer.h"
+
+#include"Renderer/Renderer.h"
+#include"Resource/ResourceManager.h"
+#include"OpenGLFactory.h"
+#include<glad/gl.h>
+
+namespace SerenEngine {
+	DEFINE_RTTI(OpenGLVertexBuffer, VertexBuffer::RunTimeType)
+
+	OpenGLVertexBuffer::OpenGLVertexBuffer(){}
+
+	OpenGLVertexBuffer::~OpenGLVertexBuffer()
+	{
+
+	}
+
+	void OpenGLVertexBuffer::Release() {
+		Renderer::Submit([this]() {
+			glDeleteBuffers(1, &mID);
+			ResourceManager::Get().FreeVertexBuffer(this);
+			});
+	}
+
+	void OpenGLVertexBuffer::Bind()
+	{
+		Renderer::Submit([this]() {
+			glBindBuffer(GL_ARRAY_BUFFER, mID);
+			});
+	}
+
+	void OpenGLVertexBuffer::Unbind()
+	{
+		Renderer::Submit([this]() {
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+			});
+	}
+
+}
