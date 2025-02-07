@@ -114,7 +114,7 @@ namespace SerenEngine {
 			mSystemManager->OnUpdate(MAX_DELTA_TIME);
 
 			for (auto layer : *mLayerStack) {
-				layer->OnGUIRender();
+				layer->OnGuiRender();
 			}
 			if (mRenderer->BeginScene()) {
 				mRenderer->Render();
