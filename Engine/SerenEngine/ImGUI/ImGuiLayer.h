@@ -13,18 +13,17 @@ namespace SerenEngine
 
 		virtual void OnAttach() override;
 		virtual void OnDetach() override;
-		virtual void OnUpdate() override;
+		virtual void OnUpdate(Time deltaTime) override {};
+		virtual void OnGuiRender() override;
 
 		void Begin();
 		void End();
 
 		void BlockEvents(bool block) { m_BlockEvents = block; }
-
-		void SetDarkThemeColors();
-
-		uint32_t GetActiveWidgetID() const;
 	private:
 		bool m_BlockEvents = true;
+	public:
+		virtual bool OnWindowResizedEvent(const WindowResizedEvent&) override;
 	};
 
 }

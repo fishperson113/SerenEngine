@@ -2,6 +2,7 @@
 #include <SerenEngine/Platform/Window.h>
 #include <Core/Logger/Logger.h>
 #include"GameplayLayer.h"
+#include"ImGUI/ImGuiLayer.h"
 class Game : public SerenEngine::Application
 {
 public :
@@ -13,8 +14,8 @@ public :
 		//TODO UI Layer
 		LOG_INFO("Game init");
 		mLayer = new GameplayLayer();
-		//mUI = new UILayer();
-		//PushOverlayLayer(mUI);
+		mUI = new SerenEngine::ImGuiLayer();
+		PushOverlayLayer(mUI);
 		PushLayer(mLayer);
 
 	}
@@ -22,7 +23,7 @@ public :
 	{
 		LOG_INFO("Game shutdown");
 		PopLayer(mLayer);
-		//PopOverlayLayer(mUI);
+		PopOverlayLayer(mUI);
 	}
 private:
 	SerenEngine::Layer* mLayer, * mUI;

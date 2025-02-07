@@ -12,11 +12,12 @@ namespace SerenEngine {
 	OpenGLRenderCommand::~OpenGLRenderCommand() {
 	}
 
-	void OpenGLRenderCommand::ClearColorImpl(float r, float g, float b, float w) {
+	void OpenGLRenderCommand::SetClearColorImpl(float r, float g, float b, float w) {
 		glClearColor(r, g, b, w);
-		glClear(GL_COLOR_BUFFER_BIT);
 	}
-
+	void OpenGLRenderCommand::ClearImpl() {
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	}
 	void OpenGLRenderCommand::DrawIndexedImpl(uint32_t nums, ERendererPrimitive primitive, uint32_t offset) {
 		glDrawElements(OpenGLFactory::ToOpenGLPrimitive(primitive), nums, GL_UNSIGNED_INT, (void*)offset);
 	}
@@ -43,5 +44,8 @@ namespace SerenEngine {
 
 		glDisable(OpenGLFactory::ToOpenGLState(ERendererState::Blending));
 		mRenderData.DisableRendererState = ERendererState::Blending;
+	}
+	void OpenGLRenderCommand::SetViewportImpl(uint32_t x, uint32_t y, uint32_t width, uint32_t height) {
+		glViewport(x, y, width, height);
 	}
 }

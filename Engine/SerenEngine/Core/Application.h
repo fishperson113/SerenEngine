@@ -6,6 +6,7 @@
 #include"Core/Layer/LayerStack.h"
 #include"Core/Time/Time.h"
 #include"Renderer/RendererAPI.h"
+#include"ImGUI/ImGuiLayer.h"
 namespace SerenEngine {
 	struct SEREN_API ApplicationConfiguration {
 		int Width, Height;
@@ -35,6 +36,7 @@ namespace SerenEngine {
 		void Run();
 		virtual void OnShutdownClient() = 0;
 		void Shutdown();
+		FORCE_INLINE INativeWindow* GetWindow() const { return mNativeWindow.get(); }
 		FORCE_INLINE const PerFrameData& GetPerFrameData() const { return mPerFrameData; }
 	protected:
 		Application() = default;
@@ -66,6 +68,7 @@ namespace SerenEngine {
 		Time mTime;
 		bool mIsRunning;
 		PerFrameData mPerFrameData;
+		ImGuiLayer* m_ImGuiLayer;
 	};
 
 	extern Application* CreateApplication();

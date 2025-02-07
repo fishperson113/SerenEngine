@@ -76,7 +76,7 @@ namespace SerenEngine {
 
 		OnInitClient();
 
-		while (mIsRunning && !mNativeWindow->ShouldClose()) {
+		while (mIsRunning && !mNativeWindow->ShouldClose()&&mRenderer->BeginScene()) {
 			static float lastFrameTime = 0.0f;
 
 			while (mNativeWindow->GetTimeSeconds() - lastFrameTime < minDeltaTime);
@@ -93,7 +93,6 @@ namespace SerenEngine {
 				layer->OnProcessInput(*mInputState);
 			}
 
-			mNativeWindow->SwapBuffers();
 			while (mTime.GetDeltaTime() > MAX_DELTA_TIME) {
 				mPerFrameData.IsCatchUpPhase = true;
 				for (auto layer : *mLayerStack) {
@@ -112,15 +111,13 @@ namespace SerenEngine {
 			}
 
 			mSystemManager->OnUpdate(MAX_DELTA_TIME);
-
 			for (auto layer : *mLayerStack) {
 				layer->OnGuiRender();
 			}
-			if (mRenderer->BeginScene()) {
-				mRenderer->Render();
-				mRenderer->EndScene();
-			}
-
+			
+			mRenderer->Render();
+			mRenderer->EndScene();
+			mNativeWindow->SwapBuffers();
 			MemoryMonitor::Get().Update();
 			mPerFrameData.FrameIndex++;
 		}
@@ -139,6 +136,7 @@ namespace SerenEngine {
 
 	bool Application::OnWindowResizedEvent(const WindowResizedEvent& eventContext) {
 		DISPATCH_LAYER_EVENT(WindowResizedEvent, eventContext);
+		//CORE_LOG_TRACE("(Width: {0}, Height: {1})", eventContext.GetWidth(), eventContext.GetHeight());
 		return false;
 	}
 

@@ -62,7 +62,7 @@ void GameplayLayer::OnDetach() {
 	LOG_TRACE("GameplayLayer is detached");
 }
 void GameplayLayer::OnUpdate(Time time) {
-	SerenEngine::Renderer::ClearColor(1.0f, 0.3f, 0.6f);
+	SerenEngine::Renderer::SetClearColor(1.0f, 0.3f, 0.6f);
 	static float temp = 0.0f;
 	temp += time.GetDeltaTime();
 

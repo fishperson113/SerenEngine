@@ -9,9 +9,9 @@ namespace SerenEngine {
 		if (Application::Get().GetPerFrameData().IsCatchUpPhase) return;
 		sRenderCommandQueue.Enqueue(renderCallback);
 	}
-	void Renderer::ClearColor(float r, float g, float b, float w) {
+	void Renderer::SetClearColor(float r, float g, float b, float w) {
 		Submit([r, g, b, w]() {
-			RenderCommand::ClearColor(r, g, b, w);
+			RenderCommand::SetClearColor(r, g, b, w);
 			});
 	}
 	void Renderer::EnableBlending(ERendererBlendFunction source, ERendererBlendFunction destination, ERendererBlendEquation blendEquation) {
@@ -23,6 +23,18 @@ namespace SerenEngine {
 	void Renderer::DisableBlending() {
 		Submit([]() {
 			RenderCommand::DisableBlending();
+			});
+	}
+	void Renderer::OnWindowResize(uint32_t width, uint32_t height)
+	{
+		Submit([width, height]() {
+			RenderCommand::SetViewport(0,0,width, height);
+			});
+	}
+	void Renderer::Clear()
+	{
+		Submit([]() {
+			RenderCommand::Clear();
 			});
 	}
 	void Renderer::DrawIndexed(uint32_t nums, ERendererPrimitive primitive, uint32_t offset) {
@@ -41,6 +53,7 @@ namespace SerenEngine {
 			});
 	}
 	bool Renderer::BeginScene() {
+		Clear();
 		return true;
 	}
 	void Renderer::Render() {
