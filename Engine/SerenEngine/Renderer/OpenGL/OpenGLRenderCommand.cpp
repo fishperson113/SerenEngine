@@ -1,5 +1,7 @@
 #include"Renderer/RenderCommand.h"
 #include"OpenGLFactory.h"
+#include"Core/Logger/Logger.h"
+#include"Resource/IndexBuffer.h"
 #define GLAD_GL_IMPLEMENTATION
 #include<glad/gl.h>
 namespace SerenEngine {
@@ -10,6 +12,33 @@ namespace SerenEngine {
 	}
 
 	OpenGLRenderCommand::~OpenGLRenderCommand() {
+	}
+
+	void OpenGLRenderCommand::SetLineWidthImpl(float width)
+	{
+		glLineWidth(width);
+	}
+
+	void OpenGLRenderCommand::DrawLinesImpl(uint32_t nums, ERendererPrimitive primitive, uint32_t offset)
+	{
+		glDrawArrays(OpenGLFactory::ToOpenGLPrimitive(primitive), offset, nums);
+
+	}
+
+	void OpenGLRenderCommand::DrawIndexedImpl(const Shared<VertexArray>& vertexArray, uint32_t indexCount, ERendererPrimitive primitive, uint32_t offset)
+	{
+		vertexArray->Bind();
+
+		glDrawElements(OpenGLFactory::ToOpenGLPrimitive(primitive),
+			indexCount,
+			GL_UNSIGNED_INT,
+			(const void*)(intptr_t)offset);
+	}
+
+	void OpenGLRenderCommand::DrawIndexedImpl(VertexArray* vertexArray, uint32_t indexCount, ERendererPrimitive primitive, uint32_t offset)
+	{
+		uint32_t count = indexCount ? indexCount : vertexArray->GetIndexBuffer()->GetNums();
+		DrawIndexedImpl(count, primitive,offset);
 	}
 
 	void OpenGLRenderCommand::SetClearColorImpl(float r, float g, float b, float w) {

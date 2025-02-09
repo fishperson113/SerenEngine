@@ -8,11 +8,14 @@ layout(location = 2) in vec4 aColor;
 out vec2 TexCoords;
 out vec4 Color;
 
-void main() {
-	TexCoords = aTexCoords;
-	Color = aColor;
+uniform mat4 u_ViewProjection;
+uniform mat4 u_Transform;
 
-	gl_Position = vec4(aPosition, 1.0);
+void main()
+{
+    TexCoords = aTexCoords;
+    Color = aColor;
+    gl_Position = u_ViewProjection * vec4(aPosition, 1.0);
 }
 
 

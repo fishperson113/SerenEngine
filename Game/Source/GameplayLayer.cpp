@@ -1,9 +1,11 @@
 #include"GameplayLayer.h"
 #include<SerenEngine/Base.h>
-#include<Core/System/System.h>
+#include<ECS/System/System.h>
 #include<Renderer/Renderer.h>
 using namespace SerenEngine;
-
+GameplayLayer::GameplayLayer() : m_CameraController(720.0f / 720.0f) {
+	LOG_TRACE("GameplayLayer is created");
+}
 void GameplayLayer::OnAttach() {
 	/*LOG_TRACE("GameplayLayer is attached");
 
@@ -62,24 +64,36 @@ void GameplayLayer::OnDetach() {
 	LOG_TRACE("GameplayLayer is detached");
 }
 void GameplayLayer::OnUpdate(Time time) {
+	m_CameraController.OnUpdate(time.GetDeltaTime());
 	SerenEngine::Renderer::SetClearColor(1.0f, 0.3f, 0.6f);
-	static float temp = 0.0f;
-	temp += time.GetDeltaTime();
-
-	Renderer::EnableBlending();
 
 	mShader->Bind();
-	/*mShader->SetVector3("tempColor", glm::vec3(glm::cos(temp) + 1.0f, 1.0f, glm::sin(temp) + 1.0f));
-	mShader->SetFloat("alpha", glm::sin(temp) + 1.0f);
-	*/
+	
 	mShader->SetVector3("tempColor", glm::vec3(1.0f));
 	mShader->SetFloat("alpha", 0.5f);
-	mFirstQuad->Bind();
-	Renderer::DrawIndexed(mFirstQuad->GetIndexBuffer()->GetNums());
+	mShader->SetMatrix4("u_ViewProjection", m_CameraController.GetCamera().GetViewProjectionMatrix());
 
-	mSecondQuad->Bind();
-	Renderer::DrawIndexed(mSecondQuad->GetIndexBuffer()->GetNums());
+	mFirstQuad->Bind();
+	Renderer::DrawIndexed(mFirstQuad,mFirstQuad->GetIndexBuffer()->GetNums());
+
 }
 bool GameplayLayer::OnKeyPressedEvent(const KeyPressedEvent& eventContext) {
+	return false;
+}
+
+void GameplayLayer::OnProcessInput(const InputState& input)
+{
+	m_CameraController.OnProcessInput(input);
+}
+
+bool GameplayLayer::OnWindowResizedEvent(const SerenEngine::WindowResizedEvent& e)
+{
+	m_CameraController.OnWindowResizedEvent(e);
+	return false;
+}
+
+bool GameplayLayer::OnMouseScrolledEvent(const SerenEngine::MouseScrolledEvent& e)
+{
+	m_CameraController.OnMouseScrolledEvent(e);
 	return false;
 }

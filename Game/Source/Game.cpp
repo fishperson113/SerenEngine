@@ -14,8 +14,6 @@ public :
 		//TODO UI Layer
 		LOG_INFO("Game init");
 		mLayer = new GameplayLayer();
-		mUI = new SerenEngine::ImGuiLayer();
-		PushOverlayLayer(mUI);
 		PushLayer(mLayer);
 
 	}
@@ -23,7 +21,6 @@ public :
 	{
 		LOG_INFO("Game shutdown");
 		PopLayer(mLayer);
-		PopOverlayLayer(mUI);
 	}
 private:
 	SerenEngine::Layer* mLayer, * mUI;

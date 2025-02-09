@@ -143,6 +143,7 @@ namespace SerenEngine {
 
 	void OpenGLShader::SetMatrix4(const std::string& name, const glm::mat4& value)
 	{
+
 		Renderer::Submit([name, value, this]() {
 			glUniformMatrix4fv(glGetUniformLocation(mID, name.c_str()), 1, GL_FALSE, glm::value_ptr(value));
 			});

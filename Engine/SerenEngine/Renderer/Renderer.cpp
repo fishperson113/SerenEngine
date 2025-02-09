@@ -1,6 +1,7 @@
 #include"Renderer.h"
 #include"Core/Logger/Logger.h"
 #include"Renderer/RenderCommand.h"
+#include"Resource/VertexArray.h"
 namespace SerenEngine {
 	DEFINE_RTTI_NO_PARENT(Renderer)
 
@@ -37,9 +38,20 @@ namespace SerenEngine {
 			RenderCommand::Clear();
 			});
 	}
+	void Renderer::DrawIndexed(VertexArray* vertexArray, uint32_t indexCount, ERendererPrimitive primitive, uint32_t offset)
+	{
+		Submit([vertexArray, indexCount, primitive, offset]() {
+			RenderCommand::DrawIndexed(vertexArray, indexCount, primitive, offset);
+			});
+	}
 	void Renderer::DrawIndexed(uint32_t nums, ERendererPrimitive primitive, uint32_t offset) {
 		Submit([nums, primitive, offset]() {
 			RenderCommand::DrawIndexed(nums, primitive, offset);
+			});
+	}
+	void Renderer::DrawIndexed(const Shared<VertexArray>& vertexArray, uint32_t indexCount, ERendererPrimitive primitive, uint32_t offset) {
+		Submit([vertexArray, indexCount, primitive, offset]() {
+			RenderCommand::DrawIndexed(vertexArray, indexCount, primitive, offset);
 			});
 	}
 	Renderer::Renderer() {

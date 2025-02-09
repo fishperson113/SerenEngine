@@ -6,9 +6,10 @@
 #include"GlobalMemory.h"
 #include"ECS/SystemManager.h"
 #include"ECS/Coordinator.h"
-#include"Core/System/System.h"
+#include"ECS/System/System.h"
 #include"Renderer/Renderer.h"
 #include"Resource/ResourceManager.h"
+#include"Ultils/DrawGeometry.h"
 
 #define DISPATCH_LAYER_EVENT(eventType, eventContext) for (auto iter = mLayerStack->rbegin(); iter != mLayerStack->rend(); ++iter) {\
 	if ((*iter)->On##eventType(eventContext)) {\
@@ -35,7 +36,7 @@ namespace SerenEngine {
 
 	bool Application::Init() {
 		Logger::Init();
-
+		//DrawGeometry::Init();
 		if (!mNativeWindow->Init(mConfig, &mEventDispatcher)) {
 			return false;
 		}
@@ -61,10 +62,14 @@ namespace SerenEngine {
 		mSystemManager->AddSystemDependency(&renderer2D, &collisionSystem, &animationSystem);*/
 
 	/*	collisionSystem.SetUpdateInterval(5.0f);*/
+		//auto& inputSystem = mSystemManager->AddSystem<InputSystem>();
 
 		mSystemManager->OnInit();
 		mRenderer->OnInit(mConfig);
 		ResourceManager::OnInit(mConfig.RendererSpec);
+
+		m_ImGuiLayer = new SerenEngine::ImGuiLayer();
+		PushOverlayLayer(m_ImGuiLayer);
 		return true;
 	}
 
@@ -121,7 +126,7 @@ namespace SerenEngine {
 			MemoryMonitor::Get().Update();
 			mPerFrameData.FrameIndex++;
 		}
-
+		PopOverlayLayer(m_ImGuiLayer);
 		OnShutdownClient();
 	}
 

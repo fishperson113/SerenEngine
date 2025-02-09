@@ -4,18 +4,24 @@
 #include<Resource/IndexBuffer.h>
 #include<Resource/Shader.h>
 #include<Resource/VertexArray.h>
+#include<Renderer/OrthographicCameraController.h>
+#include"pch.h"
 class GameplayLayer : public SerenEngine::Layer
 {
 public:
-	GameplayLayer() {}
-	~GameplayLayer() {}
-private:
+	GameplayLayer();
+	~GameplayLayer() {};
+public:
 	virtual void OnAttach() override;
 	virtual void OnDetach() override;
-	virtual void OnUpdate(SerenEngine::Time time);
+	virtual void OnUpdate(SerenEngine::Time time) override;
 	virtual bool OnKeyPressedEvent(const SerenEngine::KeyPressedEvent& eventContext);
+	virtual void OnProcessInput(const SerenEngine::InputState&) override;
+	virtual bool OnWindowResizedEvent(const SerenEngine::WindowResizedEvent&) override;
+	virtual bool OnMouseScrolledEvent(const SerenEngine::MouseScrolledEvent&) override;
 private:
 	SerenEngine::VertexArray* mFirstQuad;
 	SerenEngine::VertexArray* mSecondQuad;
 	SerenEngine::Shader* mShader;
+	SerenEngine::OrthographicCameraController m_CameraController;
 };

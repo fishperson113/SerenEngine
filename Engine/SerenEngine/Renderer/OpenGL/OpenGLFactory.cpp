@@ -13,7 +13,7 @@ namespace SerenEngine {
 	uint32_t OpenGLFactory::ToOpenGLPrimitive(ERendererPrimitive primitive) {
 		if (primitive == ERendererPrimitive::Points) return GL_POINTS;
 		if (primitive == ERendererPrimitive::Lines) return GL_LINES;
-
+	
 		return GL_TRIANGLES;
 	}
 	uint32_t OpenGLFactory::ToOpenGLState(ERendererState renderState) {
