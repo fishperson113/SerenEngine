@@ -9,7 +9,7 @@
 #include"ECS/System/System.h"
 #include"Renderer/Renderer.h"
 #include"Resource/ResourceManager.h"
-#include"Ultils/DrawGeometry.h"
+#include"Renderer/RenderCommand.h"
 
 #define DISPATCH_LAYER_EVENT(eventType, eventContext) for (auto iter = mLayerStack->rbegin(); iter != mLayerStack->rend(); ++iter) {\
 	if ((*iter)->On##eventType(eventContext)) {\
@@ -24,7 +24,7 @@ namespace SerenEngine {
 	}
 
 	Application::Application(const ApplicationConfiguration& config) : mConfig(config), mEventDispatcher(),
-		mIsRunning(true), mInputState(nullptr), mTime(), mPerFrameData()
+		mIsRunning(true), mInputState(nullptr), mTime(), mPerFrameData(), mCamera(1280.0f / 720.0f)
 	{
 		mNativeWindow.reset(WindowPlatform::Create(config.WindowSpec));
 		mLayerStack = GlobalMemoryUsage::Get().NewOnStack<LayerStack>(LayerStack::RunTimeType.GetTypeName());
@@ -81,18 +81,15 @@ namespace SerenEngine {
 
 		OnInitClient();
 
-		while (mIsRunning && !mNativeWindow->ShouldClose()&&mRenderer->BeginScene()) {
+		while (mIsRunning && !mNativeWindow->ShouldClose()) {
 			static float lastFrameTime = 0.0f;
-
 			while (mNativeWindow->GetTimeSeconds() - lastFrameTime < minDeltaTime);
-
-
+			mRenderer->BeginScene(mCamera.GetCamera());
+			//Renderer::Clear();
 			float currentFrameTime = mNativeWindow->GetTimeSeconds();
 
 			mTime = currentFrameTime - lastFrameTime;
 			lastFrameTime = currentFrameTime;
-
-			mNativeWindow->PollEvents();
 
 			for (auto layer : *mLayerStack) {
 				layer->OnProcessInput(*mInputState);
@@ -119,10 +116,9 @@ namespace SerenEngine {
 			for (auto layer : *mLayerStack) {
 				layer->OnGuiRender();
 			}
-			
-			mRenderer->Render();
+			mRenderer->OnRender();
 			mRenderer->EndScene();
-			mNativeWindow->SwapBuffers();
+			mNativeWindow->OnUpdate();
 			MemoryMonitor::Get().Update();
 			mPerFrameData.FrameIndex++;
 		}

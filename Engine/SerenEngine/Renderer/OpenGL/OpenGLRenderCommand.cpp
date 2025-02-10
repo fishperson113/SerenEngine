@@ -2,6 +2,7 @@
 #include"OpenGLFactory.h"
 #include"Core/Logger/Logger.h"
 #include"Resource/IndexBuffer.h"
+#include"Renderer/Renderer.h"
 #define GLAD_GL_IMPLEMENTATION
 #include<glad/gl.h>
 namespace SerenEngine {
@@ -38,6 +39,7 @@ namespace SerenEngine {
 	void OpenGLRenderCommand::DrawIndexedImpl(VertexArray* vertexArray, uint32_t indexCount, ERendererPrimitive primitive, uint32_t offset)
 	{
 		uint32_t count = indexCount ? indexCount : vertexArray->GetIndexBuffer()->GetNums();
+		vertexArray->Bind();
 		DrawIndexedImpl(count, primitive,offset);
 	}
 

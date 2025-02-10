@@ -1,9 +1,10 @@
 #include"GameplayLayer.h"
 #include<SerenEngine/Base.h>
 #include<ECS/System/System.h>
-#include<Renderer/Renderer.h>
+#include<Renderer/RenderCommand.h>
+#include<Resource/Buffer.h>
 using namespace SerenEngine;
-GameplayLayer::GameplayLayer() : m_CameraController(720.0f / 720.0f) {
+GameplayLayer::GameplayLayer() : m_CameraController(1280.0f / 720.0f) {
 	LOG_TRACE("GameplayLayer is created");
 }
 void GameplayLayer::OnAttach() {
@@ -34,47 +35,59 @@ void GameplayLayer::OnAttach() {
 		coordinator->~Coordinator();
 	}
 	memoryManager->ClearOnStack();*/
-	mFirstQuad = VertexArray::Create();
-	mSecondQuad = VertexArray::Create();
-	mShader = Shader::Create("Assets/Shader/quad.glsl");
-
+	
 	Vertex vertices[4] = {
-		{glm::vec3(-0.5f, 0.5f, 0.0f), glm::vec2(0.0f, 0.0f), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f)}, // top-left
-		{glm::vec3(-0.5f, -0.5f, 0.0f), glm::vec2(0.0f, 0.0f), glm::vec4(0.0f, 0.0f, 1.0f, 1.0f)}, // bottom-left
-		{glm::vec3(0.5f, -0.5f, 0.0f), glm::vec2(0.0f, 0.0f), glm::vec4(0.0f, 1.0f, 0.0f, 1.0f)}, // bottom-right
-		{glm::vec3(0.5f, 0.5f, 0.0f), glm::vec2(0.0f, 0.0f), glm::vec4(0.0f, 1.0f, 1.0f, 1.0f)} // top-right
-	};
-	uint32_t indicies[6] = {
-		0, 1, 2, // left-bottom triangle
-		2, 3, 0 // right-top triangle
-	};
-	mFirstQuad->SetVertexBuffer(vertices, sizeof(vertices));
-	mFirstQuad->SetIndexBuffer(indicies, sizeof(indicies), sizeof(indicies) / sizeof(uint32_t));
-
-	Vertex quadVertices[4] = {
 		{glm::vec3(0.0f, 0.5f, 0.0f), glm::vec2(0.0f, 0.0f), glm::vec4(1.0f, 1.0f, 0.0f, 1.0f)}, // top-left
 		{glm::vec3(0.0f, -0.5f, 0.0f), glm::vec2(0.0f, 0.0f), glm::vec4(0.0f, 0.0f, 1.0f, 1.0f)}, // bottom-left
 		{glm::vec3(1.0f, -0.5f, 0.0f), glm::vec2(0.0f, 0.0f), glm::vec4(1.0f, 1.0f, 0.0f, 1.0f)}, // bottom-right
 		{glm::vec3(1.0f, 0.5f, 0.0f), glm::vec2(0.0f, 0.0f), glm::vec4(0.0f, 0.0f, 1.0f, 1.0f)} // top-right
 	};
-	mSecondQuad->SetVertexBuffer(quadVertices, sizeof(quadVertices));
-	mSecondQuad->SetIndexBuffer(indicies, sizeof(indicies), sizeof(indicies) / sizeof(uint32_t));
+	uint32_t indices[6] = {
+		0, 1, 2, // left-bottom triangle
+		2, 3, 0 // right-top triangle
+	};
+	mFirstQuad = VertexArray::Create();
+	mShader = Shader::Create("Assets/Shader/quad.glsl");
+
+	VertexBuffer* vbo = VertexBuffer::Create(reinterpret_cast<float*>(vertices), sizeof(vertices));
+
+	vbo->SetLayout({
+		{ ShaderDataType::Float3, "aPosition" },
+		{ ShaderDataType::Float2, "aTexCoords" },
+		{ ShaderDataType::Float4, "aColor" }
+		});
+	mFirstQuad->AddVertexBuffer(vbo);
+
+	IndexBuffer* squareIB = IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t));
+
+	mFirstQuad->SetIndexBuffer(squareIB);
+	//mFirstQuad->AddVertexBuffer(vertices, sizeof(vertices));
+	//mFirstQuad->SetIndexBuffer(indicies, sizeof(indicies), sizeof(indicies) / sizeof(uint32_t));
+
+	//Vertex quadVertices[4] = {
+	//	{glm::vec3(0.0f, 0.5f, 0.0f), glm::vec2(0.0f, 0.0f), glm::vec4(1.0f, 1.0f, 0.0f, 1.0f)}, // top-left
+	//	{glm::vec3(0.0f, -0.5f, 0.0f), glm::vec2(0.0f, 0.0f), glm::vec4(0.0f, 0.0f, 1.0f, 1.0f)}, // bottom-left
+	//	{glm::vec3(1.0f, -0.5f, 0.0f), glm::vec2(0.0f, 0.0f), glm::vec4(1.0f, 1.0f, 0.0f, 1.0f)}, // bottom-right
+	//	{glm::vec3(1.0f, 0.5f, 0.0f), glm::vec2(0.0f, 0.0f), glm::vec4(0.0f, 0.0f, 1.0f, 1.0f)} // top-right
+	//};
+	//mSecondQuad->SetVertexBuffer(quadVertices, sizeof(quadVertices));
+	//mSecondQuad->SetIndexBuffer(indicies, sizeof(indicies), sizeof(indicies) / sizeof(uint32_t));
 }
 void GameplayLayer::OnDetach() {
 	LOG_TRACE("GameplayLayer is detached");
 }
 void GameplayLayer::OnUpdate(Time time) {
 	m_CameraController.OnUpdate(time.GetDeltaTime());
-	SerenEngine::Renderer::SetClearColor(1.0f, 0.3f, 0.6f);
-
+	RenderCommand::SetClearColor(1.0f, 0.3f, 0.6f);
 	mShader->Bind();
 	
 	mShader->SetVector3("tempColor", glm::vec3(1.0f));
 	mShader->SetFloat("alpha", 0.5f);
 	mShader->SetMatrix4("u_ViewProjection", m_CameraController.GetCamera().GetViewProjectionMatrix());
-
-	mFirstQuad->Bind();
-	Renderer::DrawIndexed(mFirstQuad,mFirstQuad->GetIndexBuffer()->GetNums());
+	mShader->SetMatrix4("u_Transform", glm::mat4(1.0f));
+	
+	RenderCommand::DrawIndexed(mFirstQuad, mFirstQuad->GetIndexBuffer()->GetNums());
+	
 
 }
 bool GameplayLayer::OnKeyPressedEvent(const KeyPressedEvent& eventContext) {

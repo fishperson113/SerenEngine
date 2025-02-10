@@ -133,4 +133,9 @@ namespace SerenEngine {
 	{
 		return (float)glfwGetTime();
 	}
+	void GLFWPlatformWindow::OnUpdate()
+	{
+		PollEvents();
+		SwapBuffers();
+	}
 }

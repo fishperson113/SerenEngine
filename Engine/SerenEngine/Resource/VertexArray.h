@@ -14,9 +14,15 @@ namespace SerenEngine {
 		virtual ~VertexArray() = default;
 		virtual class VertexBuffer* GetVertexBuffer() = 0;
 		virtual class IndexBuffer* GetIndexBuffer() = 0;
+		virtual const std::vector<VertexBuffer*> GetVertexBuffers() const = 0;
+		
 		virtual void Release() = 0;
-		virtual void SetVertexBuffer(void* data, uint32_t size, ERendererMode mode = ERendererMode::Static) = 0;
 		virtual void SetIndexBuffer(void* data, uint32_t size, uint32_t nums, ERendererMode mode = ERendererMode::Static) = 0;
+
+		virtual void AddVertexBuffer(VertexBuffer* vertexBuffer) = 0;
+		virtual void SetIndexBuffer(IndexBuffer* indexBuffer) = 0;
+
+
 		virtual void Bind() = 0;
 		virtual void Unbind() = 0;
 	protected:

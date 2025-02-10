@@ -31,6 +31,7 @@ namespace SerenEngine
 		virtual bool ShouldClose() = 0;
 		virtual InputState* GetInputState() = 0;
 		virtual float GetTimeSeconds() = 0;
+		virtual void OnUpdate() = 0;
 	protected:
 		INativeWindow() = default;
 		INativeWindow(INativeWindow&) = default;
@@ -48,8 +49,10 @@ namespace SerenEngine
 		virtual InputState* GetInputState() override;
 		virtual float GetTimeSeconds() override;
 		GLFWwindow* GetWindow() const { return m_Window; }
+		virtual void OnUpdate() override;
 	private:
 		GLFWwindow* m_Window;
 		WindowData m_WindowData;
+
 	};
 }

@@ -4,33 +4,45 @@
 #include"Core/Application.h"
 #include"Core/Application.h"
 #include"RenderCommandQueue.h"
+#include"Resource/VertexBuffer.h"
+#include"Resource/IndexBuffer.h"
 #include"Resource/VertexArray.h"
+#include"Resource/Shader.h"
+#include"Resource/Texture.h"
+#include"Renderer/OrthographicCamera.h"
 namespace SerenEngine {
-	struct SEREN_API RendererData {
-		ERendererState RendererState = ERendererState::None;
-	};
 	class SEREN_API Renderer {
 	public:
 		DECLARE_RTTI
-	public:
-		static void Submit(const RenderCallback&);
-		static void SetClearColor(float r, float g, float b, float w = 1.0f);
-		static void DrawIndexed(uint32_t nums, ERendererPrimitive primitive = ERendererPrimitive::Triangles, uint32_t offset = 0);
-		static void DrawIndexed(const Shared<VertexArray>& vertexArray, uint32_t indexCount, ERendererPrimitive primitive = ERendererPrimitive::Triangles, uint32_t offset = 0);
+	public:		
 		static void EnableBlending(ERendererBlendFunction source = ERendererBlendFunction::SourceAlpha, ERendererBlendFunction destination = ERendererBlendFunction::OneMinusSourceAlpha, ERendererBlendEquation blendEquation = ERendererBlendEquation::Add);
 		static void DisableBlending();
 		static void OnWindowResize(uint32_t width, uint32_t height);
 		static void Clear();
-		static void DrawIndexed(VertexArray* vertexArray, uint32_t indexCount, ERendererPrimitive primitive = ERendererPrimitive::Triangles, uint32_t offset = 0);
-	private:
-		static RenderCommandQueue sRenderCommandQueue;
 	public:
-		Renderer();
-		~Renderer();
-		void OnInit(const ApplicationConfiguration&);
-		bool BeginScene();
-		void Render();
-		void EndScene();
-		void OnShutDown();
+		 void OnInit(const ApplicationConfiguration&);
+		 void BeginScene(OrthographicCamera& camera);
+		 void OnRender();
+		 void EndScene();
+		 void OnShutDown();
+	public:
+		// Primitives
+		static void DrawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color);
+		static void DrawQuad(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color);
+		static void DrawQuad(const glm::vec2& position, const glm::vec2& size, float rotation, const glm::vec4& color);
+		static void DrawQuad(const glm::vec3& position, const glm::vec2& size, float rotation, const glm::vec4& color);
+		/*static void DrawQuad(const glm::vec2& position, const glm::vec2& size, const Ref<Texture2D>& texture);
+		static void DrawQuad(const glm::vec3& position, const glm::vec2& size, const Ref<Texture2D>& texture);
+		static void DrawQuad(const glm::vec2& position, const glm::vec2& size, float rotation, const Ref<Texture2D>& texture, const glm::vec4& color = { 1.0f, 1.0f, 1.0f, 1.0f });
+		static void DrawQuad(const glm::vec3& position, const glm::vec2& size, float rotation, const Ref<Texture2D>& texture, const glm::vec4& color = { 1.0f, 1.0f, 1.0f, 1.0f });*/
+	private:
+		struct SceneData
+		{
+			VertexArray* QuadVertexArray;
+			Shader* TextureShader;
+			Texture* WhiteTexture;
+		};
+
+		static Unique<SceneData> s_SceneData;
 	};
 }

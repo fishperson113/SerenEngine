@@ -55,9 +55,7 @@ namespace SerenEngine {
 	void ImGuiLayer::End()
 	{
 		ImGui::Render();
-		Renderer::Submit([drawData = ImGui::GetDrawData()]() {
-			ImGui_ImplOpenGL3_RenderDrawData(drawData);
-			});
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 	}
 	bool ImGuiLayer::OnWindowResizedEvent(const WindowResizedEvent& e) {
 		Renderer::OnWindowResize(e.GetWidth(), e.GetHeight());

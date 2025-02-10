@@ -7,6 +7,7 @@
 #include"Core/Time/Time.h"
 #include"Renderer/RendererAPI.h"
 #include"ImGUI/ImGuiLayer.h"
+#include"Renderer/OrthographicCameraController.h"
 namespace SerenEngine {
 	struct SEREN_API ApplicationConfiguration {
 		int Width, Height;
@@ -65,6 +66,7 @@ namespace SerenEngine {
 		class Renderer* mRenderer;
 		EventDispatcher mEventDispatcher;
 		class InputState* mInputState;
+		OrthographicCameraController mCamera;
 		Time mTime;
 		bool mIsRunning;
 		PerFrameData mPerFrameData;

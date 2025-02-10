@@ -7,4 +7,8 @@ namespace SerenEngine {
 	IndexBuffer* IndexBuffer::Create() {
 		return ResourceManager::Get().NewIndexBuffer();
 	}
+	IndexBuffer* IndexBuffer::Create(uint32_t* indices, uint32_t nums)
+	{
+		return ResourceManager::Get().NewIndexBuffer(indices,nums);
+	}
 }

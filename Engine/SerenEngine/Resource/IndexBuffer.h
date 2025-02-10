@@ -10,6 +10,7 @@ namespace SerenEngine {
 		DECLARE_RTTI
 	public:
 		static IndexBuffer* Create();
+		static IndexBuffer* Create(uint32_t* indices, uint32_t nums);
 	public:
 		virtual ~IndexBuffer() = default;
 		virtual void Release() = 0;

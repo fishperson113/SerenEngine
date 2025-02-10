@@ -7,33 +7,37 @@
 
 namespace SerenEngine {
 	DEFINE_RTTI(OpenGLVertexBuffer, VertexBuffer::RunTimeType)
-
-	OpenGLVertexBuffer::OpenGLVertexBuffer(){}
+	OpenGLVertexBuffer::OpenGLVertexBuffer()
+		: mID(0), mSize(0), mData(nullptr), mMode(ERendererMode::Static), m_Layout()
+	{
+		glGenBuffers(1, &mID);
+		glBindBuffer(GL_ARRAY_BUFFER, mID);
+		glBufferData(GL_ARRAY_BUFFER, 0, nullptr, OpenGLFactory::ToOpenGLMode(mMode));
+	}
+	OpenGLVertexBuffer::OpenGLVertexBuffer(float* vertices, uint32_t size){
+		glGenBuffers(1, &mID);
+		glBindBuffer(GL_ARRAY_BUFFER, mID);
+		glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW);
+	}
 
 	OpenGLVertexBuffer::~OpenGLVertexBuffer()
 	{
-
+		Release();
 	}
 
 	void OpenGLVertexBuffer::Release() {
-		Renderer::Submit([this]() {
-			glDeleteBuffers(1, &mID);
-			ResourceManager::Get().FreeVertexBuffer(this);
-			});
+		glDeleteBuffers(1, &mID);
+		ResourceManager::Get().FreeVertexBuffer(this);
 	}
 
 	void OpenGLVertexBuffer::Bind()
 	{
-		Renderer::Submit([this]() {
-			glBindBuffer(GL_ARRAY_BUFFER, mID);
-			});
+		glBindBuffer(GL_ARRAY_BUFFER, mID);
 	}
 
 	void OpenGLVertexBuffer::Unbind()
 	{
-		Renderer::Submit([this]() {
-			glBindBuffer(GL_ARRAY_BUFFER, 0);
-			});
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
 
 }

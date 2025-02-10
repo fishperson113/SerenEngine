@@ -7,7 +7,10 @@ namespace SerenEngine {
 	public:
 		DECLARE_RTTI
 	public:
-		OpenGLIndexBuffer();
+		OpenGLIndexBuffer()
+			: mID(0), mSize(0), mNums(0)
+		{}
+		OpenGLIndexBuffer(uint32_t* indices, uint32_t nums);
 		~OpenGLIndexBuffer();
 		virtual void Release() override;
 		virtual void Bind() override;

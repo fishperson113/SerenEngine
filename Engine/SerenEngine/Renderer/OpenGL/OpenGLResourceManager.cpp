@@ -8,7 +8,8 @@ namespace SerenEngine {
 		mVertexArrayMemoryManager("VertexArrayMemoryManager"),
 		mVertexBufferMemoryManager("VertexBufferMemoryManager"),
 		mIndexBufferMemoryManager("IndexBufferMemoryManager"),
-		mShaderMemoryManager("ShaderMemoryManager")
+		mShaderMemoryManager("ShaderMemoryManager"),
+		mTextureMemoryManager("TextureMemoryManager")
 	{
 
 	}
@@ -40,6 +41,11 @@ namespace SerenEngine {
 		return mVertexBufferMemoryManager.NewObject();
 	}
 
+	VertexBuffer* OpenGLResourceManager::NewVertexBuffer(float* vertices, uint32_t size)
+	{
+		return mVertexBufferMemoryManager.NewObject(vertices,size);
+	}
+
 	void OpenGLResourceManager::FreeVertexBuffer(void* memory)
 	{
 		mVertexBufferMemoryManager.FreeObject(memory);
@@ -48,6 +54,11 @@ namespace SerenEngine {
 	IndexBuffer* OpenGLResourceManager::NewIndexBuffer()
 	{
 		return mIndexBufferMemoryManager.NewObject();
+	}
+
+	IndexBuffer* OpenGLResourceManager::NewIndexBuffer(uint32_t* indices, uint32_t nums)
+	{
+		return mIndexBufferMemoryManager.NewObject(indices,nums);
 	}
 
 	void OpenGLResourceManager::FreeIndexBuffer(void* memory)
@@ -71,6 +82,21 @@ namespace SerenEngine {
 	{
 		mShaderMemoryManager.FreeObject(memory);
 		mShaderMap.erase(StaticCast<OpenGLShader*>(memory)->GetName());
+	}
+
+	Texture* OpenGLResourceManager::NewTexture(const char* filepath)
+	{
+		return nullptr;
+	}
+
+	Texture* OpenGLResourceManager::NewTexture(uint32_t width, uint32_t height)
+	{
+		return mTextureMemoryManager.NewObject(width,height);
+	}
+
+	void OpenGLResourceManager::FreeTexture(void* memory)
+	{
+		mTextureMemoryManager.FreeObject(memory);
 	}
 
 	void* OpenGLResourceManager::AllocatePerFrame(uint32_t size, uint8_t alignment)
