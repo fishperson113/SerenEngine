@@ -21,6 +21,7 @@ namespace SerenEngine {
 		virtual void SetFloat(const std::string& name, float value) override;
 		virtual void SetFloats(const std::string& name, float* value, uint32_t count) override;
 		virtual void SetFloats2(const std::string& name, float* value, uint32_t count) override;
+		virtual void SetFloats4(const std::string& name, const glm::vec4& value) override;
 		virtual void SetVector2(const std::string& name, float x, float y) override;
 		virtual void SetVector2(const std::string& name, const glm::vec2& value) override;
 		virtual void SetVector3(const std::string& name, float x, float y, float z) override;

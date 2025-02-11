@@ -91,6 +91,12 @@ namespace SerenEngine {
 		glUniform2fv(glGetUniformLocation(mID, name.c_str()), count, value);
 	}
 
+	void OpenGLShader::SetFloats4(const std::string& name, const glm::vec4& value)
+	{
+		GLint location = glGetUniformLocation(mID, name.c_str());
+		glUniform4f(location, value.x, value.y, value.z, value.w);
+	}
+
 	void OpenGLShader::SetVector2(const std::string& name, float x, float y)
 	{
 		glUniform2f(glGetUniformLocation(mID, name.c_str()), x, y);

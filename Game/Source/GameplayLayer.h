@@ -21,7 +21,6 @@ public:
 	virtual bool OnMouseScrolledEvent(const SerenEngine::MouseScrolledEvent&) override;
 private:
 	SerenEngine::VertexArray* mFirstQuad;
-	SerenEngine::VertexArray* mSecondQuad;
 	SerenEngine::Shader* mShader;
 	SerenEngine::OrthographicCameraController m_CameraController;
 };

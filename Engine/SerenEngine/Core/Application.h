@@ -24,7 +24,7 @@ namespace SerenEngine {
 		class SystemManager;
 		class Coordinator;
 	}
-
+	class Renderer;
 	class SEREN_API Application {
 	public:
 		static Application& Get();
@@ -39,6 +39,7 @@ namespace SerenEngine {
 		void Shutdown();
 		FORCE_INLINE INativeWindow* GetWindow() const { return mNativeWindow.get(); }
 		FORCE_INLINE const PerFrameData& GetPerFrameData() const { return mPerFrameData; }
+		FORCE_INLINE Renderer* GetRenderer() const { return mRenderer; }
 	protected:
 		Application() = default;
 		Application(const ApplicationConfiguration&);
@@ -63,10 +64,9 @@ namespace SerenEngine {
 		LayerStack* mLayerStack;
 		ECS::SystemManager* mSystemManager;
 		ECS::Coordinator* mCoordinator;
-		class Renderer* mRenderer;
+		Renderer* mRenderer;
 		EventDispatcher mEventDispatcher;
 		class InputState* mInputState;
-		OrthographicCameraController mCamera;
 		Time mTime;
 		bool mIsRunning;
 		PerFrameData mPerFrameData;

@@ -2,6 +2,7 @@
 #include"Core/Logger/Logger.h"
 #include"Renderer/RenderCommand.h"
 #include"Resource/VertexArray.h"
+#include <glm/gtc/matrix_transform.hpp>
 namespace SerenEngine {
 	DEFINE_RTTI_NO_PARENT(Renderer)
 
@@ -25,7 +26,7 @@ namespace SerenEngine {
 	void Renderer::OnInit(const ApplicationConfiguration& config ) {
 		CORE_LOG_TRACE("Renderer init success");
 		RenderCommand::OnInit(config.RendererSpec);
-		/*s_SceneData = CreateUnique<Renderer::SceneData>();
+		s_SceneData = CreateUnique<Renderer::SceneData>();
 		s_SceneData->QuadVertexArray = VertexArray::Create();
 
 		float squareVertices[5 * 4] = {
@@ -52,12 +53,12 @@ namespace SerenEngine {
 
 		s_SceneData->TextureShader = Shader::Create("Assets/Shader/Texture.glsl");
 		s_SceneData->TextureShader->Bind();
-		s_SceneData->TextureShader->SetInt("u_Texture", 0);*/
+		s_SceneData->TextureShader->SetInt("u_Texture", 0);
 	}
 	void Renderer::BeginScene(OrthographicCamera& camera) {
 		Clear();
-		/*s_SceneData->TextureShader->Bind();
-		s_SceneData->TextureShader->SetMatrix4("u_ViewProjection", camera.GetViewProjectionMatrix());*/
+		s_SceneData->TextureShader->Bind();
+		s_SceneData->TextureShader->SetMatrix4("u_ViewProjection", camera.GetViewProjectionMatrix());
 	}
 	void Renderer::OnRender() {
 		
@@ -67,5 +68,35 @@ namespace SerenEngine {
 	void Renderer::OnShutDown() {
 		CORE_LOG_TRACE("Renderer is shutdown");
 		RenderCommand::OnShutdown();
+	}
+	void Renderer::DrawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color)
+	{
+		DrawQuad({ position.x, position.y, 0.0f }, size, color);
+	}
+	void Renderer::DrawQuad(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color)
+	{
+		s_SceneData->TextureShader->SetFloats4("u_Color", color);
+		s_SceneData->WhiteTexture->Bind();
+
+		glm::mat4 transform = glm::translate(glm::mat4(1.0f), position) * glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
+		s_SceneData->TextureShader->SetMatrix4("u_Transform", transform);
+		s_SceneData->QuadVertexArray->Bind();
+		RenderCommand::DrawIndexed(s_SceneData->QuadVertexArray, s_SceneData->QuadVertexArray->GetIndexBuffer()->GetNums());
+	}
+	void Renderer::DrawQuad(const glm::vec2& position, const glm::vec2& size, float rotation, const glm::vec4& color)
+	{
+		DrawQuad({ position.x, position.y, 0.0f }, size, rotation, color);
+	}
+	void Renderer::DrawQuad(const glm::vec3& position, const glm::vec2& size, float rotation, const glm::vec4& color)
+	{
+		s_SceneData->TextureShader->SetFloats4("u_Color", color);
+		s_SceneData->WhiteTexture->Bind();
+
+		glm::mat4 transform = glm::translate(glm::mat4(1.0f), position)
+			* glm::rotate(glm::mat4(1.0f), rotation, { 0.0f, 0.0f, 1.0f })
+			* glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
+		s_SceneData->TextureShader->SetMatrix4("u_Transform", transform);
+		s_SceneData->QuadVertexArray->Bind();
+		RenderCommand::DrawIndexed(s_SceneData->QuadVertexArray, s_SceneData->QuadVertexArray->GetIndexBuffer()->GetNums());
 	}
 }

@@ -13,7 +13,7 @@ namespace SerenEngine
 
 	Texture* Texture::Create(uint32_t width, uint32_t height)
 	{
-		return nullptr;
+		return ResourceManager::Get().NewTexture(width,height);
 	}
 
 }

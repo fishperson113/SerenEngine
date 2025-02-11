@@ -3,6 +3,7 @@
 #include<ECS/System/System.h>
 #include<Renderer/RenderCommand.h>
 #include<Resource/Buffer.h>
+#include<Renderer/Renderer.h>
 using namespace SerenEngine;
 GameplayLayer::GameplayLayer() : m_CameraController(1280.0f / 720.0f) {
 	LOG_TRACE("GameplayLayer is created");
@@ -61,32 +62,18 @@ void GameplayLayer::OnAttach() {
 	IndexBuffer* squareIB = IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t));
 
 	mFirstQuad->SetIndexBuffer(squareIB);
-	//mFirstQuad->AddVertexBuffer(vertices, sizeof(vertices));
-	//mFirstQuad->SetIndexBuffer(indicies, sizeof(indicies), sizeof(indicies) / sizeof(uint32_t));
-
-	//Vertex quadVertices[4] = {
-	//	{glm::vec3(0.0f, 0.5f, 0.0f), glm::vec2(0.0f, 0.0f), glm::vec4(1.0f, 1.0f, 0.0f, 1.0f)}, // top-left
-	//	{glm::vec3(0.0f, -0.5f, 0.0f), glm::vec2(0.0f, 0.0f), glm::vec4(0.0f, 0.0f, 1.0f, 1.0f)}, // bottom-left
-	//	{glm::vec3(1.0f, -0.5f, 0.0f), glm::vec2(0.0f, 0.0f), glm::vec4(1.0f, 1.0f, 0.0f, 1.0f)}, // bottom-right
-	//	{glm::vec3(1.0f, 0.5f, 0.0f), glm::vec2(0.0f, 0.0f), glm::vec4(0.0f, 0.0f, 1.0f, 1.0f)} // top-right
-	//};
-	//mSecondQuad->SetVertexBuffer(quadVertices, sizeof(quadVertices));
-	//mSecondQuad->SetIndexBuffer(indicies, sizeof(indicies), sizeof(indicies) / sizeof(uint32_t));
 }
 void GameplayLayer::OnDetach() {
 	LOG_TRACE("GameplayLayer is detached");
 }
 void GameplayLayer::OnUpdate(Time time) {
 	m_CameraController.OnUpdate(time.GetDeltaTime());
+	Application::Get().GetRenderer()->BeginScene(m_CameraController.GetCamera());
 	RenderCommand::SetClearColor(1.0f, 0.3f, 0.6f);
-	mShader->Bind();
-	
-	mShader->SetVector3("tempColor", glm::vec3(1.0f));
-	mShader->SetFloat("alpha", 0.5f);
-	mShader->SetMatrix4("u_ViewProjection", m_CameraController.GetCamera().GetViewProjectionMatrix());
-	mShader->SetMatrix4("u_Transform", glm::mat4(1.0f));
-	
-	RenderCommand::DrawIndexed(mFirstQuad, mFirstQuad->GetIndexBuffer()->GetNums());
+
+	Renderer::DrawQuad(glm::vec3(0.0f, 0.0f, 0.0f),
+		glm::vec2(1.0f, 1.0f),
+		glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
 	
 
 }

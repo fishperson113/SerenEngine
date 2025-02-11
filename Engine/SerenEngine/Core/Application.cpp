@@ -24,7 +24,7 @@ namespace SerenEngine {
 	}
 
 	Application::Application(const ApplicationConfiguration& config) : mConfig(config), mEventDispatcher(),
-		mIsRunning(true), mInputState(nullptr), mTime(), mPerFrameData(), mCamera(1280.0f / 720.0f)
+		mIsRunning(true), mInputState(nullptr), mTime(), mPerFrameData()
 	{
 		mNativeWindow.reset(WindowPlatform::Create(config.WindowSpec));
 		mLayerStack = GlobalMemoryUsage::Get().NewOnStack<LayerStack>(LayerStack::RunTimeType.GetTypeName());
@@ -65,9 +65,10 @@ namespace SerenEngine {
 		//auto& inputSystem = mSystemManager->AddSystem<InputSystem>();
 
 		mSystemManager->OnInit();
-		mRenderer->OnInit(mConfig);
 		ResourceManager::OnInit(mConfig.RendererSpec);
+		mRenderer->OnInit(mConfig);
 
+		OnInitClient();
 		m_ImGuiLayer = new SerenEngine::ImGuiLayer();
 		PushOverlayLayer(m_ImGuiLayer);
 		return true;
@@ -79,13 +80,10 @@ namespace SerenEngine {
 		const float MAX_DELTA_TIME = 0.05f;
 		float minDeltaTime = 1.0f / mConfig.MaxFPS;
 
-		OnInitClient();
 
 		while (mIsRunning && !mNativeWindow->ShouldClose()) {
 			static float lastFrameTime = 0.0f;
 			while (mNativeWindow->GetTimeSeconds() - lastFrameTime < minDeltaTime);
-			mRenderer->BeginScene(mCamera.GetCamera());
-			//Renderer::Clear();
 			float currentFrameTime = mNativeWindow->GetTimeSeconds();
 
 			mTime = currentFrameTime - lastFrameTime;
@@ -94,7 +92,6 @@ namespace SerenEngine {
 			for (auto layer : *mLayerStack) {
 				layer->OnProcessInput(*mInputState);
 			}
-
 			while (mTime.GetDeltaTime() > MAX_DELTA_TIME) {
 				mPerFrameData.IsCatchUpPhase = true;
 				for (auto layer : *mLayerStack) {
@@ -116,8 +113,6 @@ namespace SerenEngine {
 			for (auto layer : *mLayerStack) {
 				layer->OnGuiRender();
 			}
-			mRenderer->OnRender();
-			mRenderer->EndScene();
 			mNativeWindow->OnUpdate();
 			MemoryMonitor::Get().Update();
 			mPerFrameData.FrameIndex++;
