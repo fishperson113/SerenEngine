@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include"pch.h"
 #include"Core/Type/RTTI.h"
 #include"Core/Application.h"
@@ -21,10 +21,10 @@ namespace SerenEngine {
 		static void Clear();
 	public:
 		 void OnInit(const ApplicationConfiguration&);
+		 void OnShutDown();
 		 void BeginScene(OrthographicCamera& camera);
 		 void OnRender();
 		 void EndScene();
-		 void OnShutDown();
 	public:
 		// Primitives
 		static void DrawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color);
@@ -36,13 +36,8 @@ namespace SerenEngine {
 		static void DrawQuad(const glm::vec2& position, const glm::vec2& size, float rotation, const Ref<Texture2D>& texture, const glm::vec4& color = { 1.0f, 1.0f, 1.0f, 1.0f });
 		static void DrawQuad(const glm::vec3& position, const glm::vec2& size, float rotation, const Ref<Texture2D>& texture, const glm::vec4& color = { 1.0f, 1.0f, 1.0f, 1.0f });*/
 	private:
-		struct SceneData
-		{
-			VertexArray* QuadVertexArray;
-			Shader* TextureShader;
-			Texture* WhiteTexture;
-		};
-
-		static Unique<SceneData> s_SceneData;
+		static void Flush();
+		static void StartBatch();
+		static void NextBatch();
 	};
 }

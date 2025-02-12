@@ -36,7 +36,6 @@ namespace SerenEngine {
 
 	bool Application::Init() {
 		Logger::Init();
-		//DrawGeometry::Init();
 		if (!mNativeWindow->Init(mConfig, &mEventDispatcher)) {
 			return false;
 		}

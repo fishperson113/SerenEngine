@@ -24,6 +24,7 @@ namespace SerenEngine {
 		virtual void Unbind() = 0;
 		virtual uint32_t GetID() const = 0;
 		virtual uint32_t GetSize() const = 0;
+		virtual void SetData(const void* data, uint32_t size) = 0;
 		virtual void SetID(uint32_t id) = 0;
 		virtual void SetSize(uint32_t size) = 0;
 		virtual void SetLayout(const BufferLayout& layout) = 0;

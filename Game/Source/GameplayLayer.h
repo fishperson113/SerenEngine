@@ -6,6 +6,7 @@
 #include<Resource/VertexArray.h>
 #include<Renderer/OrthographicCameraController.h>
 #include"pch.h"
+#include"Renderer/Renderer.h"
 class GameplayLayer : public SerenEngine::Layer
 {
 public:
@@ -20,7 +21,6 @@ public:
 	virtual bool OnWindowResizedEvent(const SerenEngine::WindowResizedEvent&) override;
 	virtual bool OnMouseScrolledEvent(const SerenEngine::MouseScrolledEvent&) override;
 private:
-	SerenEngine::VertexArray* mFirstQuad;
-	SerenEngine::Shader* mShader;
+	SerenEngine::Renderer* mRenderer;
 	SerenEngine::OrthographicCameraController m_CameraController;
 };

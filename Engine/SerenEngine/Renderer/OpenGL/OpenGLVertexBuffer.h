@@ -20,6 +20,7 @@ namespace SerenEngine {
 		FORCE_INLINE virtual void SetSize(uint32_t size) override { mSize = size; }
 		FORCE_INLINE virtual const BufferLayout& GetLayout() const override { return m_Layout; }
 		FORCE_INLINE virtual void SetLayout(const BufferLayout& layout) override { m_Layout = layout; }
+		virtual void SetData(const void* data, uint32_t size) override;
 	private:
 		uint32_t mID, mSize;
 		void* mData;

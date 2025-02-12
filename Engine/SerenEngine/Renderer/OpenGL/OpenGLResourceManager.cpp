@@ -23,6 +23,7 @@ namespace SerenEngine {
 	{
 		mVertexArrayMemoryManager.Reset();
 		mVertexBufferMemoryManager.Reset();
+		mTextureMemoryManager.Reset();
 		mIndexBufferMemoryManager.Reset();
 		mShaderMemoryManager.Reset();
 	}

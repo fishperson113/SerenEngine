@@ -37,44 +37,20 @@ void GameplayLayer::OnAttach() {
 	}
 	memoryManager->ClearOnStack();*/
 	
-	Vertex vertices[4] = {
-		{glm::vec3(0.0f, 0.5f, 0.0f), glm::vec2(0.0f, 0.0f), glm::vec4(1.0f, 1.0f, 0.0f, 1.0f)}, // top-left
-		{glm::vec3(0.0f, -0.5f, 0.0f), glm::vec2(0.0f, 0.0f), glm::vec4(0.0f, 0.0f, 1.0f, 1.0f)}, // bottom-left
-		{glm::vec3(1.0f, -0.5f, 0.0f), glm::vec2(0.0f, 0.0f), glm::vec4(1.0f, 1.0f, 0.0f, 1.0f)}, // bottom-right
-		{glm::vec3(1.0f, 0.5f, 0.0f), glm::vec2(0.0f, 0.0f), glm::vec4(0.0f, 0.0f, 1.0f, 1.0f)} // top-right
-	};
-	uint32_t indices[6] = {
-		0, 1, 2, // left-bottom triangle
-		2, 3, 0 // right-top triangle
-	};
-	mFirstQuad = VertexArray::Create();
-	mShader = Shader::Create("Assets/Shader/quad.glsl");
-
-	VertexBuffer* vbo = VertexBuffer::Create(reinterpret_cast<float*>(vertices), sizeof(vertices));
-
-	vbo->SetLayout({
-		{ ShaderDataType::Float3, "aPosition" },
-		{ ShaderDataType::Float2, "aTexCoords" },
-		{ ShaderDataType::Float4, "aColor" }
-		});
-	mFirstQuad->AddVertexBuffer(vbo);
-
-	IndexBuffer* squareIB = IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t));
-
-	mFirstQuad->SetIndexBuffer(squareIB);
+	mRenderer = Application::Get().GetRenderer();
 }
 void GameplayLayer::OnDetach() {
 	LOG_TRACE("GameplayLayer is detached");
 }
 void GameplayLayer::OnUpdate(Time time) {
 	m_CameraController.OnUpdate(time.GetDeltaTime());
-	Application::Get().GetRenderer()->BeginScene(m_CameraController.GetCamera());
+	mRenderer->BeginScene(m_CameraController.GetCamera());
 	RenderCommand::SetClearColor(1.0f, 0.3f, 0.6f);
 
 	Renderer::DrawQuad(glm::vec3(0.0f, 0.0f, 0.0f),
-		glm::vec2(1.0f, 1.0f),
-		glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
-	
+					   glm::vec2(1.0f, 1.0f),	
+					   glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+	mRenderer->EndScene();
 
 }
 bool GameplayLayer::OnKeyPressedEvent(const KeyPressedEvent& eventContext) {
