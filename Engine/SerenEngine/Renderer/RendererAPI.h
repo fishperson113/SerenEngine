@@ -13,7 +13,8 @@ namespace SerenEngine {
 	enum class ERendererResource {
 		VertexShader,
 		FragmentShader,
-		Shader
+		Shader,
+		GeometryShader
 	};
 
 	enum class ERendererPrimitive {

@@ -20,6 +20,10 @@ namespace SerenEngine {
 		const glm::mat4& GetProjectionMatrix() const { return m_ProjectionMatrix; }
 		const glm::mat4& GetViewMatrix() const { return m_ViewMatrix; }
 		const glm::mat4& GetViewProjectionMatrix() const { return m_ViewProjectionMatrix; }
+
+		void SetViewportSize(float width, float height) { m_ViewportWidth = width; m_ViewportHeight = height; }
+		float GetViewportWidth() const { return m_ViewportWidth; }
+		float GetViewportHeight() const { return m_ViewportHeight; }
 	private:
 		void RecalculateViewMatrix();
 	private:
@@ -29,6 +33,9 @@ namespace SerenEngine {
 
 		glm::vec3 m_Position = { 0.0f, 0.0f, 0.0f };
 		float m_Rotation = 0.0f;
+
+		float m_ViewportWidth;
+		float m_ViewportHeight;
 	};
 
 }

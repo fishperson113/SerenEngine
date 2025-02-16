@@ -7,6 +7,7 @@
 using namespace SerenEngine;
 GameplayLayer::GameplayLayer() : m_CameraController(1280.0f / 720.0f) {
 	LOG_TRACE("GameplayLayer is created");
+	m_CameraController.GetCamera().SetViewportSize(1280.0f, 720.0f);
 }
 void GameplayLayer::OnAttach() {
 	/*LOG_TRACE("GameplayLayer is attached");
@@ -46,10 +47,12 @@ void GameplayLayer::OnUpdate(Time time) {
 	m_CameraController.OnUpdate(time.GetDeltaTime());
 	mRenderer->BeginScene(m_CameraController.GetCamera());
 	RenderCommand::SetClearColor(1.0f, 0.3f, 0.6f);
-
-	Renderer::DrawQuad(glm::vec3(0.0f, 0.0f, 0.0f),
-					   glm::vec2(1.0f, 1.0f),	
+	float angle=(27*3.14)/180.0f;
+	Renderer::DrawRotatedQuad(glm::vec3(0.0f, 0.0f, 0.0f),
+					   glm::vec2(1.0f, 1.0f),
+						angle,
 					   glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+	//Renderer::DrawLine(glm::vec2(0.0f, 0.0f), glm::vec2(1.0f, 1.0f), glm::vec4(255.0f, 0.0f, 0.0f, 1.0f),200);
 	mRenderer->EndScene();
 
 }

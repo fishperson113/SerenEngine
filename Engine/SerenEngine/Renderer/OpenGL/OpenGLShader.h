@@ -8,7 +8,9 @@ namespace SerenEngine {
 	public:
 		DECLARE_RTTI
 	public:
+		OpenGLShader();
 		OpenGLShader(const char* name, const char* vertexSource, const char* fragmentSource);
+		OpenGLShader(const char* name, const char* vertexSource, const char* fragmentSource,const char* geometrySource);
 		~OpenGLShader();
 		virtual void Release() override;
 		virtual void Bind() override;
@@ -31,6 +33,6 @@ namespace SerenEngine {
 		bool IsValidShader(uint32_t shaderID, ERendererResource resource);
 	private:
 		uint32_t mID;
-		std::string mName, mVertexSource, mFragmentSource;
+		std::string mName, mVertexSource, mFragmentSource,mGeometrySource;
 	};
 }

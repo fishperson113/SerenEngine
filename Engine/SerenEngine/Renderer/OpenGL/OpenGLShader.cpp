@@ -1,4 +1,4 @@
-#include"OpenGLShader.h"
+﻿#include"OpenGLShader.h"
 #include"Renderer/Renderer.h"
 #include"Resource/ResourceManager.h"
 #include"Core/Type/Cast.h"
@@ -11,10 +11,51 @@
 namespace SerenEngine {
 	DEFINE_RTTI(OpenGLShader, Shader::RunTimeType)
 
-		OpenGLShader::OpenGLShader(const char* name, const char* vertexSource, const char* fragmentSource) :
-		mName(name), mVertexSource(vertexSource), mFragmentSource(fragmentSource)
+		OpenGLShader::OpenGLShader() : mID(0)
 	{
-		uint32_t vertexShaderID, fragmentShaderID;
+		mName = "";
+		mVertexSource = "";
+		mFragmentSource = "";
+		mGeometrySource = "";
+	}
+
+	OpenGLShader::OpenGLShader(const char* name, const char* vertexSource, const char* fragmentSource) :
+		OpenGLShader(name, vertexSource, fragmentSource, "")
+	{
+	}
+
+	OpenGLShader::OpenGLShader(const char* name=nullptr, const char* vertexSource= nullptr, const char* fragmentSource= nullptr,const char* geometrySource= nullptr) :
+		mName(name), mVertexSource(vertexSource), mFragmentSource(fragmentSource), mGeometrySource(geometrySource)
+	{
+		//uint32_t vertexShaderID, fragmentShaderID;
+		//// Vertex Shader
+		//vertexShaderID = glCreateShader(GL_VERTEX_SHADER);
+		//glShaderSource(vertexShaderID, 1, &vertexSource, nullptr);
+		//glCompileShader(vertexShaderID);
+		//// Fragment Shader
+		//fragmentShaderID = glCreateShader(GL_FRAGMENT_SHADER);
+		//glShaderSource(fragmentShaderID, 1, &fragmentSource, nullptr);
+		//glCompileShader(fragmentShaderID);
+		//// Shader Program
+		//mID = glCreateProgram();
+		//if (
+		//	IsValidShader(vertexShaderID, ERendererResource::VertexShader) &&
+		//	IsValidShader(fragmentShaderID, ERendererResource::FragmentShader)
+		//	) {
+		//	glAttachShader(mID, vertexShaderID);
+		//	glAttachShader(mID, fragmentShaderID);
+		//	glLinkProgram(mID);
+
+		//	if (IsValidShader(mID, ERendererResource::Shader)) {
+		//		CORE_LOG_INFO("Shader program {0} with id {1} is loaded!", mName.c_str(), mID);
+		//	}
+		//}
+
+		//glDeleteShader(vertexShaderID);
+		//glDeleteShader(fragmentShaderID);
+		uint32_t vertexShaderID, fragmentShaderID, geometryShaderID = 0;
+		bool hasGeometry = (geometrySource != nullptr && strlen(geometrySource) > 0);
+
 		// Vertex Shader
 		vertexShaderID = glCreateShader(GL_VERTEX_SHADER);
 		glShaderSource(vertexShaderID, 1, &vertexSource, nullptr);
@@ -23,23 +64,41 @@ namespace SerenEngine {
 		fragmentShaderID = glCreateShader(GL_FRAGMENT_SHADER);
 		glShaderSource(fragmentShaderID, 1, &fragmentSource, nullptr);
 		glCompileShader(fragmentShaderID);
-		// Shader Program
+
+		// Geometry Shader (nếu có)
+		if (hasGeometry)
+		{
+			geometryShaderID = glCreateShader(GL_GEOMETRY_SHADER);
+			glShaderSource(geometryShaderID, 1, &geometrySource, nullptr);
+			glCompileShader(geometryShaderID);
+		}
+
+		// Tạo chương trình shader
 		mID = glCreateProgram();
-		if (
-			IsValidShader(vertexShaderID, ERendererResource::VertexShader) &&
-			IsValidShader(fragmentShaderID, ERendererResource::FragmentShader)
-			) {
+		if (IsValidShader(vertexShaderID, ERendererResource::VertexShader) &&
+			IsValidShader(fragmentShaderID, ERendererResource::FragmentShader) &&
+			(!hasGeometry || IsValidShader(geometryShaderID, ERendererResource::GeometryShader)))
+		{
 			glAttachShader(mID, vertexShaderID);
 			glAttachShader(mID, fragmentShaderID);
+			if (hasGeometry)
+			{
+				glAttachShader(mID, geometryShaderID);
+			}
 			glLinkProgram(mID);
 
-			if (IsValidShader(mID, ERendererResource::Shader)) {
+			if (IsValidShader(mID, ERendererResource::Shader))
+			{
 				CORE_LOG_INFO("Shader program {0} with id {1} is loaded!", mName.c_str(), mID);
 			}
 		}
 
 		glDeleteShader(vertexShaderID);
 		glDeleteShader(fragmentShaderID);
+		if (hasGeometry)
+		{
+			glDeleteShader(geometryShaderID);
+		}
 	}
 
 	OpenGLShader::~OpenGLShader()
@@ -142,6 +201,14 @@ namespace SerenEngine {
 			if (!success) {
 				glGetShaderInfoLog(shaderID, 512, nullptr, info);
 				CORE_LOG_ERROR("{0} compiled failed: {1}", "Fragment Shader", info);
+				return false;
+			}
+			break;
+		case SerenEngine::ERendererResource::GeometryShader:
+			glGetShaderiv(shaderID, GL_COMPILE_STATUS, &success);
+			if (!success) {
+				glGetShaderInfoLog(shaderID, 512, nullptr, info);
+				CORE_LOG_ERROR("{0} compiled failed: {1}", "Geometry Shader", info);
 				return false;
 			}
 			break;

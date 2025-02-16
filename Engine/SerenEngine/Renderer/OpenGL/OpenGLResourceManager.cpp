@@ -73,8 +73,31 @@ namespace SerenEngine {
 			return mShaderMap.at(filepath);
 		}
 
-		auto shaderSources = ParseGLSL(filepath);
+		/*auto shaderSources = ParseGLSL(filepath);
 		OpenGLShader* shader = mShaderMemoryManager.NewObject(filepath, shaderSources["vertex"].c_str(), shaderSources["fragment"].c_str());
+		mShaderMap[filepath] = shader;
+		return shader;*/
+		auto shaderSources = ParseGLSL(filepath);
+		OpenGLShader* shader = nullptr;
+
+		if (shaderSources.find("geometry") != shaderSources.end())
+		{
+			shader = mShaderMemoryManager.NewObject(
+				filepath,
+				shaderSources["vertex"].c_str(),
+				shaderSources["fragment"].c_str(),
+				shaderSources["geometry"].c_str()
+			);
+		}
+		else
+		{
+			shader = mShaderMemoryManager.NewObject(
+				filepath,
+				shaderSources["vertex"].c_str(),
+				shaderSources["fragment"].c_str()
+			);
+		}
+
 		mShaderMap[filepath] = shader;
 		return shader;
 	}
@@ -120,7 +143,7 @@ namespace SerenEngine {
 
 			size_t begin = pos + typeTokenLength + 1;
 			std::string type = source.substr(begin, eol - begin);
-			ASSERT((type == "vertex" || type == "fragment") && "Invalid shader type specified");
+			ASSERT((type == "vertex" || type == "fragment" || type == "geometry") && "Invalid shader type specified");
 
 			size_t nextLinePos = source.find_first_not_of("\r\n", eol);
 			pos = source.find(typeToken, nextLinePos);
