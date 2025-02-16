@@ -52,6 +52,11 @@ namespace SerenEngine {
 	void OpenGLRenderCommand::DrawIndexedImpl(uint32_t nums, ERendererPrimitive primitive, uint32_t offset) {
 		glDrawElements(OpenGLFactory::ToOpenGLPrimitive(primitive), nums, GL_UNSIGNED_INT, (void*)offset);
 	}
+	void OpenGLRenderCommand::DrawLinesImpl(VertexArray* vertexArray, uint32_t vertexCount)
+	{
+		vertexArray->Bind();
+		glDrawArrays(GL_LINES, 0, vertexCount);
+	}
 	void OpenGLRenderCommand::EnableBlendingImpl(ERendererBlendFunction source, ERendererBlendFunction destination, ERendererBlendEquation blendEquation) {
 		if (mRenderData.EnableRendererState != ERendererState::Blending) {
 			glEnable(OpenGLFactory::ToOpenGLState(ERendererState::Blending));

@@ -24,6 +24,7 @@ namespace SerenEngine {
 		static void Clear() { sInstance->ClearImpl(); }
 		static void DrawLines(uint32_t nums, ERendererPrimitive primitive, uint32_t offset) { sInstance->DrawLinesImpl(nums, primitive, offset); };
 		static void SetLineWidth(float width) { sInstance->SetLineWidthImpl(width); };
+		static void DrawLines(VertexArray* vertexArray, uint32_t vertexCount) { sInstance->DrawLinesImpl(vertexArray,vertexCount); };
 	protected:
 		virtual void SetLineWidthImpl(float width) = 0;
 		virtual void DrawLinesImpl(uint32_t nums, ERendererPrimitive primitive, uint32_t offset) = 0;
@@ -31,7 +32,8 @@ namespace SerenEngine {
 		virtual void DrawIndexedImpl(const Shared<VertexArray>& vertexArray, uint32_t indexCount, ERendererPrimitive primitive, uint32_t offset)=0;
 		virtual void DrawIndexedImpl(uint32_t nums, ERendererPrimitive primitive, uint32_t offset) = 0;
 		virtual void DrawIndexedImpl(VertexArray* vertexArray, uint32_t indexCount, ERendererPrimitive primitive, uint32_t offset) = 0;
-		
+		virtual void DrawLinesImpl(VertexArray* vertexArray, uint32_t vertexCount) =0;
+
 		virtual void EnableBlendingImpl(ERendererBlendFunction source, ERendererBlendFunction destination, ERendererBlendEquation blendEquation) = 0;
 		virtual void DisableBlendingImpl() = 0;
 		virtual void SetViewportImpl(uint32_t x, uint32_t y, uint32_t width, uint32_t height) = 0;
@@ -59,6 +61,8 @@ namespace SerenEngine {
 		virtual void DrawIndexedImpl(VertexArray* vertexArray, uint32_t indexCount, ERendererPrimitive primitive, uint32_t offset) override;
 		virtual void SetClearColorImpl(float r, float g, float b, float w = 1.0f) override;
 		virtual void DrawIndexedImpl(uint32_t nums, ERendererPrimitive primitive, uint32_t offset) override;
+		virtual void DrawLinesImpl(VertexArray* vertexArray, uint32_t vertexCount) override;
+		
 		virtual void EnableBlendingImpl(ERendererBlendFunction source, ERendererBlendFunction destination, ERendererBlendEquation blendEquation) override;
 		virtual void DisableBlendingImpl() override;
 		virtual void SetViewportImpl(uint32_t x, uint32_t y, uint32_t width, uint32_t height) override;

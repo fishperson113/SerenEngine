@@ -51,8 +51,13 @@ void GameplayLayer::OnUpdate(Time time) {
 	Renderer::DrawRotatedQuad(glm::vec3(0.0f, 0.0f, 0.0f),
 					   glm::vec2(1.0f, 1.0f),
 						angle,
-					   glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
-	//Renderer::DrawLine(glm::vec2(0.0f, 0.0f), glm::vec2(1.0f, 1.0f), glm::vec4(255.0f, 0.0f, 0.0f, 1.0f),200);
+					   glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
+
+	Renderer::DrawRotatedQuad(glm::vec3(2.0f, 0.0f, 0.0f),
+		glm::vec2(1.0f, 1.0f),
+		angle,
+		glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	Renderer::DrawLine(glm::vec2(0.0f, 0.0f), glm::vec2(1.0f, 1.0f), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f),200);
 	mRenderer->EndScene();
 
 }

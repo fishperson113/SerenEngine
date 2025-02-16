@@ -73,11 +73,11 @@ namespace SerenEngine {
 			return mShaderMap.at(filepath);
 		}
 
-		/*auto shaderSources = ParseGLSL(filepath);
+		auto shaderSources = ParseGLSL(filepath);
 		OpenGLShader* shader = mShaderMemoryManager.NewObject(filepath, shaderSources["vertex"].c_str(), shaderSources["fragment"].c_str());
 		mShaderMap[filepath] = shader;
-		return shader;*/
-		auto shaderSources = ParseGLSL(filepath);
+		return shader;
+		/*auto shaderSources = ParseGLSL(filepath);
 		OpenGLShader* shader = nullptr;
 
 		if (shaderSources.find("geometry") != shaderSources.end())
@@ -99,7 +99,7 @@ namespace SerenEngine {
 		}
 
 		mShaderMap[filepath] = shader;
-		return shader;
+		return shader;*/
 	}
 
 	void OpenGLResourceManager::FreeShader(void* memory)

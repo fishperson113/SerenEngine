@@ -23,7 +23,6 @@ namespace SerenEngine {
 	{
 		glm::vec3 Position;
 		glm::vec4 Color;
-		float Thickness;
 	};
 	struct SceneData
 	{
@@ -97,13 +96,21 @@ namespace SerenEngine {
 			-0.5f,  0.5f, 0.0f, 0.0f, 1.0f
 		};
 		
-		VertexBuffer* squareVB = VertexBuffer::Create(squareVertices, sizeof(squareVertices));
-		s_SceneData->QuadVertexBuffer = squareVB;
-		squareVB->SetLayout({
+		/*VertexBuffer* squareVB = VertexBuffer::Create(squareVertices, sizeof(squareVertices));
+		s_SceneData->QuadVertexBuffer = squareVB;*/
+		s_SceneData->QuadVertexBuffer = VertexBuffer::Create(nullptr, SceneData::MaxVertices * sizeof(QuadVertex));
+		/*squareVB->SetLayout({
 			{ ShaderDataType::Float3, "a_Position" },
 			{ ShaderDataType::Float2, "a_TexCoord" }
+			});*/
+		s_SceneData->QuadVertexBuffer->SetLayout({
+			{ ShaderDataType::Float3, "a_Position" },
+			{ ShaderDataType::Float4, "a_Color" },
+			{ ShaderDataType::Float2, "a_TexCoord" }
 			});
-		s_SceneData->QuadVertexArray->AddVertexBuffer(squareVB);
+		//s_SceneData->QuadVertexArray->AddVertexBuffer(squareVB);
+		s_SceneData->QuadVertexArray->AddVertexBuffer(s_SceneData->QuadVertexBuffer);
+
 		s_SceneData->QuadVertexBufferBase = new QuadVertex[SceneData::MaxVertices];
 
 		uint32_t* quadIndices = new uint32_t[SceneData::MaxIndices];
@@ -174,8 +181,7 @@ namespace SerenEngine {
 		s_SceneData->LineVertexBuffer = VertexBuffer::Create(nullptr, SceneData::MaxLineVertices * sizeof(LineVertex));
 		s_SceneData->LineVertexBuffer->SetLayout({
 			{ ShaderDataType::Float3, "a_Position" },
-			{ ShaderDataType::Float4, "a_Color" },
-			{ ShaderDataType::Float,  "a_Thickness" }
+			{ ShaderDataType::Float4, "a_Color" }
 			});
 		s_SceneData->LineVertexArray->AddVertexBuffer(s_SceneData->LineVertexBuffer);
 		s_SceneData->LineVertexBufferBase = new LineVertex[SceneData::MaxLineVertices];
@@ -225,7 +231,7 @@ namespace SerenEngine {
 			s_SceneData->LineVertexBuffer->SetData(s_SceneData->LineVertexBufferBase, lineDataSize);
 
 			s_SceneData->LineShader->Bind();
-			RenderCommand::DrawLines(s_SceneData->LineVertexCount, ERendererPrimitive::Lines, 0);
+			RenderCommand::DrawLines(s_SceneData->LineVertexArray,s_SceneData->LineVertexCount);
 		}
 	}
 	void Renderer::StartBatch()
@@ -260,8 +266,6 @@ namespace SerenEngine {
 		if (s_SceneData->QuadIndexCount >= SceneData::MaxIndices)
 			NextBatch();
 
-		s_SceneData->TextureShader->SetFloats4("u_Color", color);
-		s_SceneData->WhiteTexture->Bind();
 		glm::mat4 transform = glm::translate(glm::mat4(1.0f), position) *
 			glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
 
@@ -298,14 +302,9 @@ namespace SerenEngine {
 		if (s_SceneData->QuadIndexCount >= SceneData::MaxIndices)
 			NextBatch();
 
-		s_SceneData->TextureShader->SetFloats4("u_Color", color);
-		s_SceneData->WhiteTexture->Bind();
-
 		glm::mat4 transform = glm::translate(glm::mat4(1.0f), position)
 			* glm::rotate(glm::mat4(1.0f), rotation, glm::vec3(0.0f, 0.0f, 1.0f))
 			* glm::scale(glm::mat4(1.0f), glm::vec3(size, 1.0f));
-
-		s_SceneData->TextureShader->SetMatrix4("u_Transform", transform);
 
 		const glm::vec2 texCoords[4] = {
 			{ 0.0f, 0.0f },
@@ -347,12 +346,10 @@ namespace SerenEngine {
 
 		s_SceneData->LineVertexBufferPtr->Position = start;
 		s_SceneData->LineVertexBufferPtr->Color = color;
-		s_SceneData->LineVertexBufferPtr->Thickness = thickness;
 		s_SceneData->LineVertexBufferPtr++;
 
 		s_SceneData->LineVertexBufferPtr->Position = end;
 		s_SceneData->LineVertexBufferPtr->Color = color;
-		s_SceneData->LineVertexBufferPtr->Thickness = thickness;
 		s_SceneData->LineVertexBufferPtr++;
 
 		s_SceneData->LineVertexCount += 2;
