@@ -37,6 +37,7 @@ namespace SerenEngine {
 		static void DrawQuad(const glm::vec3& position, const glm::vec2& size, float rotation, const Ref<Texture2D>& texture, const glm::vec4& color = { 1.0f, 1.0f, 1.0f, 1.0f });*/
 
 		//Circle
+		static void DrawCircle(const glm::mat4& transform, const glm::vec4& color, float thickness /*= 1.0f*/, float fade /*= 0.005f*/);
 		static void DrawCircle(const glm::vec2& position, float radius, const glm::vec4& color);
 		static void DrawCircle(const glm::vec3& position, float radius, const glm::vec4& color);
 

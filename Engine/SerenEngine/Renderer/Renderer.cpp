@@ -35,7 +35,7 @@ namespace SerenEngine {
 		//Quad
 		VertexArray* QuadVertexArray;
 		VertexBuffer* QuadVertexBuffer;
-		Shader* TextureShader;
+		Shader* QuadShader;
 		Texture* WhiteTexture;
 
 		QuadVertex* QuadVertexBufferBase = nullptr;
@@ -57,6 +57,8 @@ namespace SerenEngine {
 		LineVertex* LineVertexBufferBase = nullptr;
 		LineVertex* LineVertexBufferPtr = nullptr;
 		uint32_t LineVertexCount = 0;
+
+		glm::vec4 QuadVertexPositions[4];
 
 	};
 
@@ -96,24 +98,21 @@ namespace SerenEngine {
 			-0.5f,  0.5f, 0.0f, 0.0f, 1.0f
 		};
 		
-		/*VertexBuffer* squareVB = VertexBuffer::Create(squareVertices, sizeof(squareVertices));
-		s_SceneData->QuadVertexBuffer = squareVB;*/
+
 		s_SceneData->QuadVertexBuffer = VertexBuffer::Create(nullptr, SceneData::MaxVertices * sizeof(QuadVertex));
-		/*squareVB->SetLayout({
-			{ ShaderDataType::Float3, "a_Position" },
-			{ ShaderDataType::Float2, "a_TexCoord" }
-			});*/
+
 		s_SceneData->QuadVertexBuffer->SetLayout({
 			{ ShaderDataType::Float3, "a_Position" },
 			{ ShaderDataType::Float4, "a_Color" },
 			{ ShaderDataType::Float2, "a_TexCoord" }
 			});
-		//s_SceneData->QuadVertexArray->AddVertexBuffer(squareVB);
+
 		s_SceneData->QuadVertexArray->AddVertexBuffer(s_SceneData->QuadVertexBuffer);
 
 		s_SceneData->QuadVertexBufferBase = new QuadVertex[SceneData::MaxVertices];
 
 		uint32_t* quadIndices = new uint32_t[SceneData::MaxIndices];
+
 		uint32_t offset = 0;
 		for (uint32_t i = 0; i < SceneData::MaxIndices; i += 6) {
 			quadIndices[i + 0] = offset + 0;
@@ -135,9 +134,7 @@ namespace SerenEngine {
 		uint32_t whiteTextureData = 0xffffffff;
 		s_SceneData->WhiteTexture->SetData(&whiteTextureData, sizeof(uint32_t));
 
-		s_SceneData->TextureShader = Shader::Create("Assets/Shader/Texture.glsl");
-		s_SceneData->TextureShader->Bind();
-		s_SceneData->TextureShader->SetInt("u_Texture", 0);
+		s_SceneData->QuadShader = Shader::Create("Assets/Shader/Renderer_Quad.glsl");
 
 		// ----------------------
 		// Circle Initialization
@@ -146,32 +143,16 @@ namespace SerenEngine {
 		s_SceneData->CircleVertexArray = VertexArray::Create();
 		s_SceneData->CircleVertexBuffer = VertexBuffer::Create(nullptr, SceneData::MaxCircles * 4 * sizeof(CircleVertex));
 		s_SceneData->CircleVertexBuffer->SetLayout({
-			{ ShaderDataType::Float3, "a_Position" },       
-			{ ShaderDataType::Float3, "a_LocalPosition" },  
+			{ ShaderDataType::Float3, "a_WorldPosition" },
+			{ ShaderDataType::Float3, "a_LocalPosition" },
 			{ ShaderDataType::Float4, "a_Color" },
 			{ ShaderDataType::Float,  "a_Thickness" },
 			{ ShaderDataType::Float,  "a_Fade" }
 			});
 		s_SceneData->CircleVertexArray->AddVertexBuffer(s_SceneData->CircleVertexBuffer);
+		s_SceneData->CircleVertexArray->SetIndexBuffer(quadIB); 
 		s_SceneData->CircleVertexBufferBase = new CircleVertex[SceneData::MaxCircles * 4];
-
-		uint32_t* circleIndices = new uint32_t[SceneData::MaxCircleIndices];
-		offset = 0;
-		for (uint32_t i = 0; i < SceneData::MaxCircleIndices; i += 6) {
-			circleIndices[i + 0] = offset + 0;
-			circleIndices[i + 1] = offset + 1;
-			circleIndices[i + 2] = offset + 2;
-
-			circleIndices[i + 3] = offset + 2;
-			circleIndices[i + 4] = offset + 3;
-			circleIndices[i + 5] = offset + 0;
-			offset += 4;
-		}
-		IndexBuffer* circleIB = IndexBuffer::Create(circleIndices, SceneData::MaxCircleIndices);
-		s_SceneData->CircleVertexArray->SetIndexBuffer(circleIB);
-		delete[] circleIndices;
-
-		s_SceneData->CircleShader = s_SceneData->TextureShader;
+		s_SceneData->CircleShader = Shader::Create("Assets/Shader/Renderer_Circle.glsl");
 
 		// ----------------------
 		// Line Initialization
@@ -186,13 +167,29 @@ namespace SerenEngine {
 		s_SceneData->LineVertexArray->AddVertexBuffer(s_SceneData->LineVertexBuffer);
 		s_SceneData->LineVertexBufferBase = new LineVertex[SceneData::MaxLineVertices];
 
-		s_SceneData->LineShader = s_SceneData->TextureShader;
+		s_SceneData->LineShader = Shader::Create("Assets/Shader/Renderer_Line.glsl");
+
+		s_SceneData->QuadVertexPositions[0] = { -0.5f, -0.5f, 0.0f, 1.0f };
+		s_SceneData->QuadVertexPositions[1] = { 0.5f, -0.5f, 0.0f, 1.0f };
+		s_SceneData->QuadVertexPositions[2] = { 0.5f,  0.5f, 0.0f, 1.0f };
+		s_SceneData->QuadVertexPositions[3] = { -0.5f,  0.5f, 0.0f, 1.0f };
 	}
 	void Renderer::BeginScene(OrthographicCamera& camera) {
 		Clear();
-		s_SceneData->TextureShader->Bind();
-		s_SceneData->TextureShader->SetMatrix4("u_ViewProjection", camera.GetViewProjectionMatrix());
-		s_SceneData->TextureShader->SetMatrix4("u_Transform", glm::mat4(1.0f));
+		s_SceneData->QuadShader->Bind();
+		s_SceneData->QuadShader->SetMatrix4("u_ViewProjection", camera.GetViewProjectionMatrix());
+		s_SceneData->QuadShader->SetMatrix4("u_Transform", glm::mat4(1.0f));
+
+		// Circle Shader
+		s_SceneData->CircleShader->Bind();
+		s_SceneData->CircleShader->SetMatrix4("u_ViewProjection", camera.GetViewProjectionMatrix());
+		s_SceneData->CircleShader->SetMatrix4("u_Transform", glm::mat4(1.0f));
+
+		// Line Shader
+		s_SceneData->LineShader->Bind();
+		s_SceneData->LineShader->SetMatrix4("u_ViewProjection", camera.GetViewProjectionMatrix());
+		s_SceneData->LineShader->SetMatrix4("u_Transform", glm::mat4(1.0f));
+
 		StartBatch();
 	}
 	void Renderer::OnRender() {
@@ -210,7 +207,7 @@ namespace SerenEngine {
 			s_SceneData->QuadVertexBuffer->SetData(s_SceneData->QuadVertexBufferBase, quadDataSize);
 
 			s_SceneData->WhiteTexture->Bind();
-			s_SceneData->TextureShader->Bind();
+			s_SceneData->QuadShader->Bind();
 			RenderCommand::DrawIndexed(s_SceneData->QuadVertexArray, s_SceneData->QuadIndexCount);
 		}
 
@@ -329,11 +326,51 @@ namespace SerenEngine {
 
 		s_SceneData->QuadIndexCount += 6;
 	}
+	void Renderer::DrawCircle(const glm::mat4& transform, const glm::vec4& color, float thickness, float fade)
+	{
+		for (size_t i = 0; i < 4; i++)
+		{
+			s_SceneData->CircleVertexBufferPtr->WorldPosition = transform * s_SceneData->QuadVertexPositions[i];
+			s_SceneData->CircleVertexBufferPtr->LocalPosition = s_SceneData->QuadVertexPositions[i] * 2.0f;
+			s_SceneData->CircleVertexBufferPtr->Color = color;
+			s_SceneData->CircleVertexBufferPtr->Thickness = thickness;
+			s_SceneData->CircleVertexBufferPtr->Fade = fade;
+			s_SceneData->CircleVertexBufferPtr++;
+		}
+
+		s_SceneData->CircleIndexCount += 6;
+	}
 	void Renderer::DrawCircle(const glm::vec2& position, float radius, const glm::vec4& color)
 	{
+		DrawCircle(glm::vec3(position, 0.0f), radius, color);
 	}
 	void Renderer::DrawCircle(const glm::vec3& position, float radius, const glm::vec4& color)
 	{
+		if (s_SceneData->CircleIndexCount >= SceneData::MaxCircleIndices)
+			NextBatch();
+		glm::mat4 transform = glm::translate(glm::mat4(1.0f), position) *
+			glm::scale(glm::mat4(1.0f), glm::vec3(radius * 2.0f, radius * 2.0f, 1.0f));
+
+		glm::vec3 localPositions[4] = {
+		glm::vec3(-0.5f, -0.5f, 0.0f),
+		glm::vec3(0.5f, -0.5f, 0.0f),
+		glm::vec3(0.5f,  0.5f, 0.0f),
+		glm::vec3(-0.5f,  0.5f, 0.0f)
+		};
+
+		for (int i = 0; i < 4; i++) {
+			CircleVertex& vertex = *s_SceneData->CircleVertexBufferPtr;
+			glm::vec4 worldPos = transform * glm::vec4(localPositions[i], 1.0f);
+			vertex.WorldPosition = glm::vec3(worldPos);
+			vertex.LocalPosition = localPositions[i];
+			vertex.Color = color;
+			vertex.Thickness = 1.0f; 
+			vertex.Fade = 0.005f;    
+
+			s_SceneData->CircleVertexBufferPtr++;
+		}
+
+		s_SceneData->CircleIndexCount += 6;
 	}
 	void Renderer::DrawLine(const glm::vec2& start, const glm::vec2& end, const glm::vec4& color, float thickness=1.0f)
 	{

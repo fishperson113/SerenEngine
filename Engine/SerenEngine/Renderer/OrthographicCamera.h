@@ -21,7 +21,10 @@ namespace SerenEngine {
 		const glm::mat4& GetViewMatrix() const { return m_ViewMatrix; }
 		const glm::mat4& GetViewProjectionMatrix() const { return m_ViewProjectionMatrix; }
 
-		void SetViewportSize(float width, float height) { m_ViewportWidth = width; m_ViewportHeight = height; }
+		void SetViewportSize(float width, float height) {
+			m_ViewportWidth = width; 
+			m_ViewportHeight = height; 
+		}
 		float GetViewportWidth() const { return m_ViewportWidth; }
 		float GetViewportHeight() const { return m_ViewportHeight; }
 	private:
