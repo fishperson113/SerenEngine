@@ -30,7 +30,7 @@ namespace SerenEngine {
 		virtual class Shader* NewShader(const char* filepath) = 0;
 		virtual void FreeShader(void* memory) = 0;
 		
-		virtual class Texture* NewTexture(const char* filepath) = 0;
+		virtual class Texture* NewTexture(const std::string& filepath) = 0;
 		virtual class Texture* NewTexture(uint32_t width, uint32_t height) = 0;
 		virtual void FreeTexture(void* memory) = 0;
 		virtual void* AllocatePerFrame(uint32_t size, uint8_t alignment) = 0;

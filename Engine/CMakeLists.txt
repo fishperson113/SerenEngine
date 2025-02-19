@@ -14,10 +14,11 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 		${CMAKE_SOURCE_DIR}/Vendors/glfw/include
 		${CMAKE_SOURCE_DIR}/Vendors/glm
 		${CMAKE_SOURCE_DIR}/Vendors/imgui
+		${CMAKE_SOURCE_DIR}/Vendors/stb_image
 )
 
 target_link_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/Vendors/bin)
-target_link_libraries(${PROJECT_NAME} PUBLIC spdlogd glfw glm imgui)
+target_link_libraries(${PROJECT_NAME} PUBLIC spdlogd glfw glm imgui stb_image)
 
 target_precompile_headers(${PROJECT_NAME} PUBLIC 
 		${CMAKE_CURRENT_SOURCE_DIR}/SerenEngine/pch.h 

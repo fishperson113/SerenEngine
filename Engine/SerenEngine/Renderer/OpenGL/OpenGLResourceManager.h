@@ -33,7 +33,7 @@ namespace SerenEngine {
 		virtual class Shader* NewShader(const char* filepath) override;
 		virtual void FreeShader(void* memory) override;
 		//Texture
-		virtual class Texture* NewTexture(const char* filepath) override;
+		virtual class Texture* NewTexture(const std::string& filepath) override;
 		virtual class Texture* NewTexture(uint32_t width, uint32_t height) override;
 		virtual void FreeTexture(void* memory) override;
 

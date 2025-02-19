@@ -108,7 +108,7 @@ namespace SerenEngine {
 		mShaderMap.erase(StaticCast<OpenGLShader*>(memory)->GetName());
 	}
 
-	Texture* OpenGLResourceManager::NewTexture(const char* filepath)
+	Texture* OpenGLResourceManager::NewTexture(const std::string& filepath)
 	{
 		return mTextureMemoryManager.NewObject(filepath);
 	}

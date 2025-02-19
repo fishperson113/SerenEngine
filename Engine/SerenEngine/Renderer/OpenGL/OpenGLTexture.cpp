@@ -2,7 +2,7 @@
 #include "pch.h"
 #include <glad/gl.h>
 #include "Renderer/Renderer.h"
-
+#include "stb_image.h"
 namespace SerenEngine {
 
     DEFINE_RTTI(OpenGLTexture, Texture::RunTimeType)
@@ -28,7 +28,7 @@ namespace SerenEngine {
         glBindTexture(GL_TEXTURE_2D, 0);
     }
 
-    OpenGLTexture::OpenGLTexture(const char* path)
+    OpenGLTexture::OpenGLTexture(const std::string& path)
         : m_Path(path)
     {
         int width, height, channels;

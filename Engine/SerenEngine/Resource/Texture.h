@@ -12,7 +12,7 @@ namespace SerenEngine {
 	public:
 		DECLARE_RTTI
 	public:
-		static Texture* Create(const char* path);
+		static Texture* Create(const std::string& path);
 		static Texture* Create(uint32_t width, uint32_t height);
 	public:
 		virtual ~Texture() = default;

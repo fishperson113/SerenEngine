@@ -6,7 +6,7 @@ namespace SerenEngine
 	DEFINE_RTTI(Texture, Object::RunTimeType)
 
 
-		Texture* Texture::Create(const char* path)
+		Texture* Texture::Create(const std::string& path)
 	{
 		return ResourceManager::Get().NewTexture(path);
 	}
