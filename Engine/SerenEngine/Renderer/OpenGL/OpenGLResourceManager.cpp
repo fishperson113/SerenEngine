@@ -110,7 +110,7 @@ namespace SerenEngine {
 
 	Texture* OpenGLResourceManager::NewTexture(const char* filepath)
 	{
-		return nullptr;
+		return mTextureMemoryManager.NewObject(filepath);
 	}
 
 	Texture* OpenGLResourceManager::NewTexture(uint32_t width, uint32_t height)

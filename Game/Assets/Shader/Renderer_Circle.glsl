@@ -19,12 +19,11 @@ out float v_Fade;
 
 void main()
 {
-    // Sử dụng world position đã tính toán trong C++ (tức là sau khi transform)
     gl_Position = u_ViewProjection * u_Transform * vec4(a_WorldPosition, 1.0);
     v_LocalPosition = a_LocalPosition;
     v_Color = a_Color;
-    v_Thickness = a_Thickness;
-    v_Fade = a_Fade;
+    v_Thickness = clamp(a_Thickness, 0.0, 0.5);
+    v_Fade = clamp(a_Fade, 0.0, 0.1);
 }
 
 #type fragment
@@ -39,9 +38,20 @@ in float v_Fade;
 
 void main()
 {
-    // Tính khoảng cách từ tâm (giả sử LocalPosition nằm trong khoảng [-0.5, 0.5])
-    float dist = length(v_LocalPosition);
+        // Bán kính của hình tròn
     float outer = 0.5;
-    float alpha = 1.0 - smoothstep(outer - v_Thickness - v_Fade, outer - v_Thickness, dist);
-    color = v_Color * vec4(1.0, 1.0, 1.0, alpha);
+    float inner = outer - v_Thickness; // Bán kính viền trong
+
+    // Tính toán khoảng cách từ tâm
+    float dist = length(v_LocalPosition);
+
+    // Áp dụng smoothstep để tính độ mờ viền ngoài
+    float alpha = 1.0 - smoothstep(inner - v_Fade, outer + v_Fade, dist);
+
+    // Nếu alpha nhỏ hơn hoặc bằng 0, bỏ qua pixel này
+    if (alpha <= 0.0)
+        discard; 
+
+    // Vẽ màu cho hình tròn với độ mờ alpha tính toán
+    color = v_Color * vec4(1.0, 1.0, 1.0, alpha); 
 }

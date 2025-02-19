@@ -57,7 +57,7 @@ void GameplayLayer::OnUpdate(Time time) {
 		glm::vec2(1.0f, 1.0f),
 		angle,
 		glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-	Renderer::DrawCircle(glm::vec2(2.0f, 1.0f), 1, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	Renderer::DrawCircle(glm::vec2(2.0f, 1.0f), 1, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
 	Renderer::DrawLine(glm::vec2(0.0f, 0.0f), glm::vec2(1.0f, 1.0f), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f),200);
 
 	Renderer::DrawLine(glm::vec2(0.0f, 0.0f), glm::vec2(0.0f, 1.0f), glm::vec4(1.0f, 0.0f, 3.0f, 1.0f), 200);

@@ -7,7 +7,7 @@ namespace SerenEngine {
 	public:
 		OpenGLTexture();
 		OpenGLTexture(uint32_t width, uint32_t height);
-		OpenGLTexture(const std::string& path);
+		OpenGLTexture(const char* path);
 		~OpenGLTexture();
 		virtual void Release() override;
 		virtual void Bind(uint32_t slot = 0) override;
