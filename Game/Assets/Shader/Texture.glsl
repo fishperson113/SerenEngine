@@ -6,45 +6,30 @@
 layout(location = 0) in vec3 a_Position;
 layout(location = 1) in vec4 a_Color;
 layout(location = 2) in vec2 a_TexCoord;
-
-// Các attribute dành riêng cho Circle
-layout(location = 3) in vec3 a_LocalPosition;
-layout(location = 4) in float a_Thickness;
-layout(location = 5) in float a_Fade;
+layout(location = 3) in float a_TexIndex;
+layout(location = 4) in float a_TilingFactor;
 
 uniform mat4 u_ViewProjection;
 uniform mat4 u_Transform;
-uniform bool u_IsCircle;
 
-out vec2 v_TexCoord;
-out vec4 v_Color;
-out vec3 v_LocalPosition;
-out float v_Thickness;
-out float v_Fade;
+struct VertexOutput
+{
+	vec4 Color;
+	vec2 TexCoord;
+	float TexIndex;
+	float TilingFactor;
+};
+
+layout (location = 0) out VertexOutput Output;
 
 void main()
 {
-	gl_Position = u_ViewProjection * u_Transform * vec4(a_Position, 1.0);
-	v_Color = a_Color;
+	Output.Color = a_Color;
+	Output.TexCoord = a_TexCoord;
+	Output.TexIndex = a_TexIndex;
+	Output.TilingFactor = a_TilingFactor;
 
-	if(u_IsCircle)
-    {
-        // Dữ liệu của Circle được truyền qua các attribute riêng
-        v_LocalPosition = a_LocalPosition;
-        v_Thickness = a_Thickness;
-        v_Fade = a_Fade;
-        // Không sử dụng a_TexCoord cho circle, ta có thể set mặc định
-        v_TexCoord = vec2(0.0);
-    }
-    else
-    {
-        // Với Quad, chỉ sử dụng a_TexCoord
-        v_TexCoord = a_TexCoord;
-        // Các giá trị này không được dùng, nhưng cần set để tránh warning
-        v_LocalPosition = vec3(0.0);
-        v_Thickness = 0.0;
-        v_Fade = 0.0;
-    }
+	gl_Position = u_ViewProjection * u_Transform * vec4(a_Position, 1.0);
 }
 
 #type fragment
@@ -52,28 +37,60 @@ void main()
 
 layout(location = 0) out vec4 color;
 
-in vec2 v_TexCoord;
-in vec4 v_Color;
-in vec3 v_LocalPosition;
-in float v_Thickness;
-in float v_Fade;
+struct VertexOutput
+{
+    vec4 Color;
+    vec2 TexCoord;
+    float TexIndex;
+    float TilingFactor;
+};
 
-uniform sampler2D u_Texture;
-uniform bool u_IsCircle;
+layout(location = 0) in VertexOutput Input;
+
+layout(binding = 0) uniform sampler2D u_Textures[32];
 
 void main()
 {
-	if(u_IsCircle)
+    vec4 texColor = Input.Color;
+    int index = int(Input.TexIndex);
+
+    // Sử dụng switch-case để chọn texture dựa vào chỉ số
+    switch(index)
     {
-        // Tính khoảng cách từ tâm (giả sử a_LocalPosition nằm trong khoảng [-0.5, 0.5])
-        float dist = length(v_LocalPosition);
-        float outer = 0.5;
-        // Sử dụng smoothstep để tạo hiệu ứng viền với độ dày và fade đã cho
-        float alpha = 1.0 - smoothstep(outer - v_Thickness - v_Fade, outer - v_Thickness, dist);
-        color = v_Color * vec4(1.0, 1.0, 1.0, alpha);
+        case  0: texColor *= texture(u_Textures[ 0], Input.TexCoord * Input.TilingFactor); break;
+        case  1: texColor *= texture(u_Textures[ 1], Input.TexCoord * Input.TilingFactor); break;
+        case  2: texColor *= texture(u_Textures[ 2], Input.TexCoord * Input.TilingFactor); break;
+        case  3: texColor *= texture(u_Textures[ 3], Input.TexCoord * Input.TilingFactor); break;
+        case  4: texColor *= texture(u_Textures[ 4], Input.TexCoord * Input.TilingFactor); break;
+        case  5: texColor *= texture(u_Textures[ 5], Input.TexCoord * Input.TilingFactor); break;
+        case  6: texColor *= texture(u_Textures[ 6], Input.TexCoord * Input.TilingFactor); break;
+        case  7: texColor *= texture(u_Textures[ 7], Input.TexCoord * Input.TilingFactor); break;
+        case  8: texColor *= texture(u_Textures[ 8], Input.TexCoord * Input.TilingFactor); break;
+        case  9: texColor *= texture(u_Textures[ 9], Input.TexCoord * Input.TilingFactor); break;
+        case 10: texColor *= texture(u_Textures[10], Input.TexCoord * Input.TilingFactor); break;
+        case 11: texColor *= texture(u_Textures[11], Input.TexCoord * Input.TilingFactor); break;
+        case 12: texColor *= texture(u_Textures[12], Input.TexCoord * Input.TilingFactor); break;
+        case 13: texColor *= texture(u_Textures[13], Input.TexCoord * Input.TilingFactor); break;
+        case 14: texColor *= texture(u_Textures[14], Input.TexCoord * Input.TilingFactor); break;
+        case 15: texColor *= texture(u_Textures[15], Input.TexCoord * Input.TilingFactor); break;
+        case 16: texColor *= texture(u_Textures[16], Input.TexCoord * Input.TilingFactor); break;
+        case 17: texColor *= texture(u_Textures[17], Input.TexCoord * Input.TilingFactor); break;
+        case 18: texColor *= texture(u_Textures[18], Input.TexCoord * Input.TilingFactor); break;
+        case 19: texColor *= texture(u_Textures[19], Input.TexCoord * Input.TilingFactor); break;
+        case 20: texColor *= texture(u_Textures[20], Input.TexCoord * Input.TilingFactor); break;
+        case 21: texColor *= texture(u_Textures[21], Input.TexCoord * Input.TilingFactor); break;
+        case 22: texColor *= texture(u_Textures[22], Input.TexCoord * Input.TilingFactor); break;
+        case 23: texColor *= texture(u_Textures[23], Input.TexCoord * Input.TilingFactor); break;
+        case 24: texColor *= texture(u_Textures[24], Input.TexCoord * Input.TilingFactor); break;
+        case 25: texColor *= texture(u_Textures[25], Input.TexCoord * Input.TilingFactor); break;
+        case 26: texColor *= texture(u_Textures[26], Input.TexCoord * Input.TilingFactor); break;
+        case 27: texColor *= texture(u_Textures[27], Input.TexCoord * Input.TilingFactor); break;
+        case 28: texColor *= texture(u_Textures[28], Input.TexCoord * Input.TilingFactor); break;
+        case 29: texColor *= texture(u_Textures[29], Input.TexCoord * Input.TilingFactor); break;
+        case 30: texColor *= texture(u_Textures[30], Input.TexCoord * Input.TilingFactor); break;
+        case 31: texColor *= texture(u_Textures[31], Input.TexCoord * Input.TilingFactor); break;
+        default: break;
     }
-    else
-    {
-        color = texture(u_Texture, v_TexCoord) * v_Color;
-    }
+
+    color = texColor;
 }

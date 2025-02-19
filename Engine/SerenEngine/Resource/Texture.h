@@ -30,6 +30,7 @@ namespace SerenEngine {
 		virtual void SetWidth(uint32_t width) = 0;
 		virtual void SetHeight(uint32_t height) = 0;
 		virtual void SetChannels(uint32_t channels) = 0;
+		virtual bool operator==(const Texture& other) const = 0;
 	};
 
 }

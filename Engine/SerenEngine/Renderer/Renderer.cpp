@@ -9,6 +9,8 @@ namespace SerenEngine {
 		glm::vec3 Position;
 		glm::vec4 Color;
 		glm::vec2 TexCoord;
+		float TexIndex;     
+		float TilingFactor;
 	};
 	struct CircleVertex
 	{
@@ -60,6 +62,9 @@ namespace SerenEngine {
 
 		glm::vec4 QuadVertexPositions[4];
 
+		static const uint32_t MaxTextureSlots = 32; 
+		std::array<Texture*, MaxTextureSlots> TextureSlots;
+		uint32_t TextureSlotIndex = 1; 
 	};
 
 	static Unique<SceneData> s_SceneData=nullptr;
@@ -104,7 +109,9 @@ namespace SerenEngine {
 		s_SceneData->QuadVertexBuffer->SetLayout({
 			{ ShaderDataType::Float3, "a_Position" },
 			{ ShaderDataType::Float4, "a_Color" },
-			{ ShaderDataType::Float2, "a_TexCoord" }
+			{ ShaderDataType::Float2, "a_TexCoord" },
+			{ ShaderDataType::Float,  "a_TexIndex" },
+			{ ShaderDataType::Float,  "a_TilingFactor" }
 			});
 
 		s_SceneData->QuadVertexArray->AddVertexBuffer(s_SceneData->QuadVertexBuffer);
@@ -134,7 +141,7 @@ namespace SerenEngine {
 		uint32_t whiteTextureData = 0xffffffff;
 		s_SceneData->WhiteTexture->SetData(&whiteTextureData, sizeof(uint32_t));
 
-		s_SceneData->QuadShader = Shader::Create("Assets/Shader/Renderer_Quad.glsl");
+		s_SceneData->QuadShader = Shader::Create("Assets/Shader/Texture.glsl");
 
 		// ----------------------
 		// Circle Initialization
@@ -173,6 +180,8 @@ namespace SerenEngine {
 		s_SceneData->QuadVertexPositions[1] = { 0.5f, -0.5f, 0.0f, 1.0f };
 		s_SceneData->QuadVertexPositions[2] = { 0.5f,  0.5f, 0.0f, 1.0f };
 		s_SceneData->QuadVertexPositions[3] = { -0.5f,  0.5f, 0.0f, 1.0f };
+
+		s_SceneData->TextureSlots[0] = s_SceneData->WhiteTexture;
 	}
 	void Renderer::BeginScene(OrthographicCamera& camera) {
 		Clear();
@@ -206,7 +215,8 @@ namespace SerenEngine {
 			uint32_t quadDataSize = (uint32_t)((uint8_t*)s_SceneData->QuadVertexBufferPtr - (uint8_t*)s_SceneData->QuadVertexBufferBase);
 			s_SceneData->QuadVertexBuffer->SetData(s_SceneData->QuadVertexBufferBase, quadDataSize);
 
-			s_SceneData->WhiteTexture->Bind();
+			for (uint32_t i = 0; i < s_SceneData->TextureSlotIndex; i++)
+				s_SceneData->TextureSlots[i]->Bind(i);
 			s_SceneData->QuadShader->Bind();
 			RenderCommand::DrawIndexed(s_SceneData->QuadVertexArray, s_SceneData->QuadIndexCount);
 		}
@@ -244,6 +254,8 @@ namespace SerenEngine {
 		// Line
 		s_SceneData->LineVertexCount = 0;
 		s_SceneData->LineVertexBufferPtr = s_SceneData->LineVertexBufferBase;
+
+		s_SceneData->TextureSlotIndex = 1;
 	}
 	void Renderer::NextBatch()
 	{
@@ -324,6 +336,71 @@ namespace SerenEngine {
 			s_SceneData->QuadVertexBufferPtr++;
 		}
 
+		s_SceneData->QuadIndexCount += 6;
+	}
+	void Renderer::DrawQuad(const glm::vec2& position, const glm::vec2& size, Texture* texture, float tilingFactor, const glm::vec4& tintColor)
+	{
+		DrawQuad({ position.x, position.y, 0.0f }, size, texture, tilingFactor, tintColor);
+	}
+	void Renderer::DrawQuad(const glm::vec3& position, const glm::vec2& size, Texture* texture, float tilingFactor, const glm::vec4& tintColor)
+	{
+		glm::mat4 transform = glm::translate(glm::mat4(1.0f), position)
+			* glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
+
+		DrawQuad(transform, texture, tilingFactor, tintColor);
+	}
+	void Renderer::DrawRotatedQuad(const glm::vec2& position, const glm::vec2& size, float rotation, Texture* texture, const glm::vec4& color)
+	{
+		DrawRotatedQuad({ position.x, position.y, 0.0f }, size, rotation, texture, color);
+	}
+	void Renderer::DrawRotatedQuad(const glm::vec3& position, const glm::vec2& size, float rotation, Texture* texture, const glm::vec4& color)
+	{
+	}
+	void Renderer::DrawQuad(const glm::mat4& transform, Texture* texture, float tilingFactor, const glm::vec4& tintColor)
+	{
+		constexpr size_t quadVertexCount = 4;
+		constexpr glm::vec2 textureCoords[] = {
+			{ 0.0f, 0.0f },
+			{ 1.0f, 0.0f },
+			{ 1.0f, 1.0f },
+			{ 0.0f, 1.0f }
+		};
+
+		// Tìm chỉ số của texture trong batch
+		float textureIndex = 0.0f;
+		for (uint32_t i = 1; i < s_SceneData->TextureSlotIndex; i++)
+		{
+			if (*s_SceneData->TextureSlots[i] == *texture) // Giả sử operator== đã được overload
+			{
+				textureIndex = (float)i;
+				break;
+			}
+		}
+		// Nếu texture chưa có trong slot, thêm vào
+		if (textureIndex == 0.0f)
+		{
+			if (s_SceneData->TextureSlotIndex >= SceneData::MaxTextureSlots)
+				NextBatch();  // Flush batch nếu vượt quá số slot
+
+			textureIndex = (float)s_SceneData->TextureSlotIndex;
+			s_SceneData->TextureSlots[s_SceneData->TextureSlotIndex] = texture;
+			s_SceneData->TextureSlotIndex++;
+		}
+
+		// Kiểm tra batch full
+		if (s_SceneData->QuadIndexCount >= SceneData::MaxIndices)
+			NextBatch();
+
+		// Ghi dữ liệu đỉnh
+		for (size_t i = 0; i < quadVertexCount; i++)
+		{
+			s_SceneData->QuadVertexBufferPtr->Position = transform * s_SceneData->QuadVertexPositions[i];
+			s_SceneData->QuadVertexBufferPtr->Color = tintColor;
+			s_SceneData->QuadVertexBufferPtr->TexCoord = textureCoords[i];
+			s_SceneData->QuadVertexBufferPtr->TexIndex = textureIndex;
+			s_SceneData->QuadVertexBufferPtr->TilingFactor = tilingFactor;
+			s_SceneData->QuadVertexBufferPtr++;
+		}
 		s_SceneData->QuadIndexCount += 6;
 	}
 	void Renderer::DrawCircle(const glm::mat4& transform, const glm::vec4& color, float thickness, float fade)

@@ -36,7 +36,7 @@ namespace SerenEngine {
         stbi_uc* data = stbi_load(path.c_str(), &width, &height, &channels, 0);
         mWidth = width;
         mHeight = height;
-
+		mChannels = channels;
         GLenum internalFormat = 0, dataFormat = 0;
         if (channels == 4)
         {

@@ -22,6 +22,10 @@ namespace SerenEngine {
 		FORCE_INLINE virtual void SetWidth(uint32_t width) override { mWidth = width; }
 		FORCE_INLINE virtual void SetHeight(uint32_t height) override { mHeight = height; }
 		FORCE_INLINE virtual void SetChannels(uint32_t channels) override { mChannels = channels; }
+		virtual bool operator==(const Texture& other) const override
+		{
+			return mID == other.GetID();
+		}
 	private:
 		uint32_t mID, mWidth, mHeight, mChannels;
 		std::string m_Path;
