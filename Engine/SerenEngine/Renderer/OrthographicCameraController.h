@@ -10,7 +10,7 @@ namespace SerenEngine {
 	class OrthographicCameraController
 	{
 	public:
-		OrthographicCameraController(float aspectRatio, bool rotation = false);
+		OrthographicCameraController(float aspectRatio, float windowHeight, bool rotation = false);
 
 		void OnUpdate(float ts);
 		void OnProcessInput(const InputState& input);
@@ -27,7 +27,7 @@ namespace SerenEngine {
 		void OnResize(float width, float height);
 	private:
 		float m_AspectRatio;
-		float m_ZoomLevel = 1.0f;
+		float m_ZoomLevel;
 		OrthographicCamera m_Camera;
 		bool m_Rotation;
 

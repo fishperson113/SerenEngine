@@ -4,6 +4,7 @@
 #include<Resource/IndexBuffer.h>
 #include<Resource/Shader.h>
 #include<Resource/VertexArray.h>
+#include<Resource/Texture.h>
 #include<Renderer/OrthographicCameraController.h>
 #include"pch.h"
 #include"Renderer/Renderer.h"
@@ -23,4 +24,5 @@ public:
 private:
 	SerenEngine::Renderer* mRenderer;
 	SerenEngine::OrthographicCameraController m_CameraController;
+	SerenEngine::Texture* mTexture;
 };

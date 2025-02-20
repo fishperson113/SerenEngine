@@ -207,6 +207,21 @@ namespace SerenEngine {
 	void Renderer::EndScene() {
 		Flush();
 	}
+	void Renderer::DrawSprite(const glm::vec3& position, Texture* texture, float scale, const glm::vec4& tintColor)
+	{
+		float texWidth = static_cast<float>(texture->GetWidth());
+		float texHeight = static_cast<float>(texture->GetHeight());
+		glm::vec2 size(texWidth, texHeight);
+
+		glm::mat4 transform = glm::translate(glm::mat4(1.0f), position) *
+			glm::scale(glm::mat4(1.0f), glm::vec3(size * scale, 1.0f));
+
+		DrawQuad(transform, texture, 1.0f, tintColor);
+	}
+	void Renderer::DrawSprite(const glm::vec2& position, Texture* texture, float scale, const glm::vec4& tintColor)
+	{
+		DrawSprite({ position.x, position.y, 0.0f }, texture, scale, tintColor);
+	}
 	void Renderer::Flush()
 	{
 		// Flush Quad
@@ -421,7 +436,7 @@ namespace SerenEngine {
 	{
 		DrawCircle(glm::vec3(position, 0.0f), radius, color);
 	}
-	void Renderer::DrawCircle(const glm::vec3& position, float radius, const glm::vec4& color)
+	void Renderer::DrawCircle(const glm::vec3& position, float radius, const glm::vec4& color, float thickness, float fade)
 	{
 		if (s_SceneData->CircleIndexCount >= SceneData::MaxCircleIndices)
 			NextBatch();
@@ -441,8 +456,8 @@ namespace SerenEngine {
 			vertex.WorldPosition = glm::vec3(worldPos);
 			vertex.LocalPosition = localPositions[i];
 			vertex.Color = color;
-			vertex.Thickness = 1.0f; 
-			vertex.Fade = 0.005f;    
+			vertex.Thickness = thickness;
+			vertex.Fade = fade;
 
 			s_SceneData->CircleVertexBufferPtr++;
 		}

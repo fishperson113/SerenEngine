@@ -41,11 +41,15 @@ namespace SerenEngine {
 		//Circle
 		static void DrawCircle(const glm::mat4& transform, const glm::vec4& color, float thickness /*= 1.0f*/, float fade /*= 0.005f*/);
 		static void DrawCircle(const glm::vec2& position, float radius, const glm::vec4& color);
-		static void DrawCircle(const glm::vec3& position, float radius, const glm::vec4& color);
+		static void DrawCircle(const glm::vec3& position, float radius, const glm::vec4& color, float thickness= 1.0f, float fade= 0.0f);
 
 		//Line
 		static void DrawLine(const glm::vec2& start, const glm::vec2& end, const glm::vec4& color, float thickness);
 		static void DrawLine(const glm::vec3& start, const glm::vec3& end, const glm::vec4& color, float thickness);
+
+		//Sprite
+		static void DrawSprite(const glm::vec3& position, Texture* texture, float scale, const glm::vec4& tintColor);
+		static void DrawSprite(const glm::vec2& position, Texture* texture, float scale, const glm::vec4& tintColor);
 	private:
 		static void Flush();
 		static void StartBatch();

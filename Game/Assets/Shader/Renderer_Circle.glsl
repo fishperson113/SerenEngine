@@ -46,7 +46,9 @@ void main()
     float dist = length(v_LocalPosition);
 
     // Áp dụng smoothstep để tính độ mờ viền ngoài
-    float alpha = 1.0 - smoothstep(inner - v_Fade, outer + v_Fade, dist);
+    //float alpha = 1.0 - smoothstep(inner - v_Fade, outer + v_Fade, dist);
+
+    float alpha = dist < outer ? 1.0 : 0.0;
 
     // Nếu alpha nhỏ hơn hoặc bằng 0, bỏ qua pixel này
     if (alpha <= 0.0)

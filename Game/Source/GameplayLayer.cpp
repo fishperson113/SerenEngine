@@ -5,7 +5,7 @@
 #include<Resource/Buffer.h>
 #include<Renderer/Renderer.h>
 using namespace SerenEngine;
-GameplayLayer::GameplayLayer() : m_CameraController(1280.0f / 720.0f) {
+GameplayLayer::GameplayLayer() : m_CameraController(1280.0f / 720.0f, 720.0f) {
 	LOG_TRACE("GameplayLayer is created");
 	m_CameraController.GetCamera().SetViewportSize(1280.0f, 720.0f);
 }
@@ -37,7 +37,7 @@ void GameplayLayer::OnAttach() {
 		coordinator->~Coordinator();
 	}
 	memoryManager->ClearOnStack();*/
-	
+	mTexture = Texture::Create("Assets/Textures/pngimg.com - mario_PNG109.png");
 	mRenderer = Application::Get().GetRenderer();
 }
 void GameplayLayer::OnDetach() {
@@ -47,10 +47,9 @@ void GameplayLayer::OnUpdate(Time time) {
 	m_CameraController.OnUpdate(time.GetDeltaTime());
 	mRenderer->BeginScene(m_CameraController.GetCamera());
 	RenderCommand::SetClearColor(1.0f, 0.3f, 0.6f);
-	Renderer::EnableBlending();
 	float angle=(27*3.14)/180.0f;
-	Renderer::DrawRotatedQuad(glm::vec3(0.0f, 0.0f, 0.0f),
-					   glm::vec2(1.0f, 3.0f),
+	Renderer::DrawRotatedQuad(glm::vec2(0.0f, 0.0f),
+					   glm::vec2(100.0f, 100.0f),
 						angle,
 					   glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
 	/*
@@ -58,13 +57,13 @@ void GameplayLayer::OnUpdate(Time time) {
 		glm::vec2(3.0f, 1.0f),
 		angle,
 		glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));*/
-	Texture* mTexture = Texture::Create("Assets/Textures/classic-small-yellow-pencil-transparent-png-LkrL28.png");
-	Renderer::DrawQuad(glm::vec3(2.0f, 0.0f, 0.0f), glm::vec2(1.0f, 1.0f), mTexture, 1.0f, glm::vec4(1.0f));
+	//Renderer::DrawQuad(glm::vec2(50.0f, 0.0f), glm::vec2(50.0f, 50.0f), mTexture, 1.0f, glm::vec4(1.0f));
+	Renderer::DrawSprite(glm::vec3(2.0f, 1.0f, 0.0f), mTexture, 1.0f, glm::vec4(1.0f));
 
-	/*Renderer::DrawCircle(glm::vec2(2.0f, 1.0f), 1, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+	Renderer::DrawCircle(glm::vec2(0.0f, 50.0f), 50, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
 	Renderer::DrawLine(glm::vec2(0.0f, 0.0f), glm::vec2(1.0f, 1.0f), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f),200);
 
-	Renderer::DrawLine(glm::vec2(0.0f, 0.0f), glm::vec2(0.0f, 1.0f), glm::vec4(1.0f, 0.0f, 3.0f, 1.0f), 200);*/
+	Renderer::DrawLine(glm::vec2(0.0f, 0.0f), glm::vec2(0.0f, 1.0f), glm::vec4(1.0f, 0.0f, 3.0f, 1.0f), 200);
 
 	mRenderer->EndScene();
 

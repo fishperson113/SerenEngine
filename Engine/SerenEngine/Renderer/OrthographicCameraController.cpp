@@ -6,8 +6,8 @@
 #include"Core/Logger/Logger.h"
 namespace SerenEngine {
 
-	OrthographicCameraController::OrthographicCameraController(float aspectRatio, bool rotation)
-		: m_AspectRatio(aspectRatio), m_Camera(-m_AspectRatio * m_ZoomLevel, m_AspectRatio* m_ZoomLevel, -m_ZoomLevel, m_ZoomLevel), m_Rotation(rotation)
+	OrthographicCameraController::OrthographicCameraController(float aspectRatio, float windowHeight, bool rotation)
+		: m_AspectRatio(aspectRatio), m_ZoomLevel(windowHeight * 0.5f), m_Camera(-m_AspectRatio * m_ZoomLevel, m_AspectRatio* m_ZoomLevel, -m_ZoomLevel, m_ZoomLevel), m_Rotation(rotation)
 	{
 	}
 
@@ -62,6 +62,7 @@ namespace SerenEngine {
 	void OrthographicCameraController::OnResize(float width, float height)
 	{
 		m_AspectRatio = width / height;
+        m_ZoomLevel = height * 0.5f;
 		m_Camera.SetProjection(-m_AspectRatio * m_ZoomLevel, m_AspectRatio * m_ZoomLevel, -m_ZoomLevel, m_ZoomLevel);
 	}
 

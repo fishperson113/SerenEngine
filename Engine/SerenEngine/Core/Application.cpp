@@ -66,7 +66,7 @@ namespace SerenEngine {
 		mSystemManager->OnInit();
 		ResourceManager::OnInit(mConfig.RendererSpec);
 		mRenderer->OnInit(mConfig);
-
+		Renderer::EnableBlending();
 		OnInitClient();
 		m_ImGuiLayer = new SerenEngine::ImGuiLayer();
 		PushOverlayLayer(m_ImGuiLayer);
