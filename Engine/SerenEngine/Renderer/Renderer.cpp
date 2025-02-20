@@ -216,11 +216,68 @@ namespace SerenEngine {
 		glm::mat4 transform = glm::translate(glm::mat4(1.0f), position) *
 			glm::scale(glm::mat4(1.0f), glm::vec3(size * scale, 1.0f));
 
-		DrawQuad(transform, texture, 1.0f, tintColor);
+		DrawSprite(transform, texture, 1.0f, tintColor);
 	}
 	void Renderer::DrawSprite(const glm::vec2& position, Texture* texture, float scale, const glm::vec4& tintColor)
 	{
 		DrawSprite({ position.x, position.y, 0.0f }, texture, scale, tintColor);
+	}
+	void Renderer::DrawSpriteAnimation(const glm::vec3& position, Texture* texture, uint32_t frameIndex, uint32_t columns, uint32_t rows, float scale, const glm::vec4& tintColor)
+	{
+		float texWidth = static_cast<float>(texture->GetWidth());
+		float texHeight = static_cast<float>(texture->GetHeight());
+		glm::vec2 frameSize(texWidth / columns, texHeight / rows);
+
+		glm::vec2 frameSizeUV(1.0f / columns, 1.0f / rows);
+		uint32_t frameX = frameIndex % columns;
+		uint32_t frameY = frameIndex / columns;
+		glm::vec2 uvOffset(frameX * frameSizeUV.x, frameY * frameSizeUV.y);
+
+		uvOffset.y = 1.0f - uvOffset.y - frameSizeUV.y;
+
+		glm::vec2 customTexCoords[4] = {
+			uvOffset,
+			uvOffset + glm::vec2(frameSizeUV.x, 0.0f),
+			uvOffset + frameSizeUV,
+			uvOffset + glm::vec2(0.0f, frameSizeUV.y)
+		};
+
+		glm::mat4 transform = glm::translate(glm::mat4(1.0f), position) *
+			glm::scale(glm::mat4(1.0f), glm::vec3(frameSize * scale, 1.0f));
+
+		constexpr size_t quadVertexCount = 4;
+
+		float textureIndex = 0.0f;
+		for (uint32_t i = 1; i < s_SceneData->TextureSlotIndex; i++)
+		{
+			if (*s_SceneData->TextureSlots[i] == *texture)
+			{
+				textureIndex = static_cast<float>(i);
+				break;
+			}
+		}
+		if (textureIndex == 0.0f)
+		{
+			if (s_SceneData->TextureSlotIndex >= SceneData::MaxTextureSlots)
+				NextBatch();
+			textureIndex = static_cast<float>(s_SceneData->TextureSlotIndex);
+			s_SceneData->TextureSlots[s_SceneData->TextureSlotIndex] = texture;
+			s_SceneData->TextureSlotIndex++;
+		}
+
+		if (s_SceneData->QuadIndexCount >= SceneData::MaxIndices)
+			NextBatch();
+
+		for (size_t i = 0; i < quadVertexCount; i++)
+		{
+			s_SceneData->QuadVertexBufferPtr->Position = transform * s_SceneData->QuadVertexPositions[i];
+			s_SceneData->QuadVertexBufferPtr->Color = tintColor;
+			s_SceneData->QuadVertexBufferPtr->TexCoord = customTexCoords[i];
+			s_SceneData->QuadVertexBufferPtr->TexIndex = textureIndex;
+			s_SceneData->QuadVertexBufferPtr->TilingFactor = 1.0f;
+			s_SceneData->QuadVertexBufferPtr++;
+		}
+		s_SceneData->QuadIndexCount += 6;
 	}
 	void Renderer::Flush()
 	{
@@ -362,7 +419,7 @@ namespace SerenEngine {
 		glm::mat4 transform = glm::translate(glm::mat4(1.0f), position)
 			* glm::scale(glm::mat4(1.0f), { size.x, size.y, 1.0f });
 
-		DrawQuad(transform, texture, tilingFactor, tintColor);
+		DrawSprite(transform, texture, tilingFactor, tintColor);
 	}
 	void Renderer::DrawRotatedQuad(const glm::vec2& position, const glm::vec2& size, float rotation, Texture* texture, const glm::vec4& color)
 	{
@@ -371,7 +428,7 @@ namespace SerenEngine {
 	void Renderer::DrawRotatedQuad(const glm::vec3& position, const glm::vec2& size, float rotation, Texture* texture, const glm::vec4& color)
 	{
 	}
-	void Renderer::DrawQuad(const glm::mat4& transform, Texture* texture, float tilingFactor, const glm::vec4& tintColor)
+	void Renderer::DrawSprite(const glm::mat4& transform, Texture* texture, float tilingFactor, const glm::vec4& tintColor)
 	{
 		constexpr size_t quadVertexCount = 4;
 		constexpr glm::vec2 textureCoords[] = {

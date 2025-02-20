@@ -1,4 +1,4 @@
-#include"GameplayLayer.h"
+﻿#include"GameplayLayer.h"
 #include<SerenEngine/Base.h>
 #include<ECS/System/System.h>
 #include<Renderer/RenderCommand.h>
@@ -37,7 +37,8 @@ void GameplayLayer::OnAttach() {
 		coordinator->~Coordinator();
 	}
 	memoryManager->ClearOnStack();*/
-	mTexture = Texture::Create("Assets/Textures/pngimg.com - mario_PNG109.png");
+	//mTexture = Texture::Create("Assets/Textures/pngimg.com - mario_PNG109.png");
+	mTexture = Texture::Create("Assets/Textures/40308.png");
 	mRenderer = Application::Get().GetRenderer();
 }
 void GameplayLayer::OnDetach() {
@@ -58,7 +59,20 @@ void GameplayLayer::OnUpdate(Time time) {
 		angle,
 		glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));*/
 	//Renderer::DrawQuad(glm::vec2(50.0f, 0.0f), glm::vec2(50.0f, 50.0f), mTexture, 1.0f, glm::vec4(1.0f));
-	Renderer::DrawSprite(glm::vec3(2.0f, 1.0f, 0.0f), mTexture, 1.0f, glm::vec4(1.0f));
+	//Renderer::DrawSprite(glm::vec3(2.0f, 1.0f, 0.0f), mTexture, 1.0f, glm::vec4(1.0f));
+
+	static float elapsedTime = 0.0f;
+	elapsedTime += time.GetDeltaTime();
+	uint32_t totalFrames = 9;
+	float frameDuration = 0.1f;
+	uint32_t currentFrame = static_cast<uint32_t>(elapsedTime /frameDuration) % totalFrames;
+
+	uint32_t columns = 3;
+	uint32_t rows = 3;
+
+	glm::vec3 spritePos(2.0f, 1.0f, 0.0f);
+
+	Renderer::DrawSpriteAnimation(spritePos, mTexture, currentFrame, columns, rows, 0.5f, glm::vec4(1.0f));
 
 	Renderer::DrawCircle(glm::vec2(0.0f, 50.0f), 50, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
 	Renderer::DrawLine(glm::vec2(0.0f, 0.0f), glm::vec2(1.0f, 1.0f), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f),200);
