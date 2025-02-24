@@ -34,17 +34,6 @@ namespace SerenEngine {
 		ImGui_ImplGlfw_Shutdown();
 		ImGui::DestroyContext();
 	}
-	void ImGuiLayer::OnGuiRender()
-	{
-		Begin();
-		//CORE_LOG_TRACE("ImGuiLayer::OnGuiRender");
-		ImGui::Begin("Test Window");
-		
-		ImGui::Text("Hello, ImGui!");
-		ImGui::End();
-
-		End();
-	}
 	void ImGuiLayer::Begin()
 	{
 		ImGui_ImplOpenGL3_NewFrame();

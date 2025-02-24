@@ -184,6 +184,7 @@ namespace SerenEngine {
 		s_SceneData->TextureSlots[0] = s_SceneData->WhiteTexture;
 	}
 	void Renderer::BeginScene(OrthographicCamera& camera) {
+
 		Clear();
 		s_SceneData->QuadShader->Bind();
 		s_SceneData->QuadShader->SetMatrix4("u_ViewProjection", camera.GetViewProjectionMatrix());
@@ -221,6 +222,30 @@ namespace SerenEngine {
 	void Renderer::DrawSprite(const glm::vec2& position, Texture* texture, float scale, const glm::vec4& tintColor)
 	{
 		DrawSprite({ position.x, position.y, 0.0f }, texture, scale, tintColor);
+	}
+	void Renderer::DrawSprite(const glm::vec3& position, float rotation, Texture* texture, float scale, const glm::vec4& tintColor)
+	{
+		float texWidth = static_cast<float>(texture->GetWidth());
+		float texHeight = static_cast<float>(texture->GetHeight());
+		glm::vec2 size(texWidth, texHeight);
+
+		glm::mat4 transform = glm::translate(glm::mat4(1.0f), position) *
+			glm::rotate(glm::mat4(1.0f), rotation, glm::vec3(0.0f, 0.0f, 1.0f)) *
+			glm::scale(glm::mat4(1.0f), glm::vec3(size * scale, 1.0f));
+
+		DrawSprite(transform, texture, 1.0f, tintColor);
+	}
+	void Renderer::DrawSprite(const glm::vec3& position, float rotation, Texture* texture, const glm::vec2& scale, const glm::vec4& tintColor)
+	{
+		float texWidth = static_cast<float>(texture->GetWidth());
+		float texHeight = static_cast<float>(texture->GetHeight());
+		glm::vec2 size(texWidth, texHeight);
+
+		glm::mat4 transform = glm::translate(glm::mat4(1.0f), position) *
+			glm::rotate(glm::mat4(1.0f), rotation, glm::vec3(0.0f, 0.0f, 1.0f)) *
+			glm::scale(glm::mat4(1.0f), glm::vec3(size * scale, 1.0f));
+
+		DrawSprite(transform, texture, 1.0f, tintColor);
 	}
 	void Renderer::DrawSpriteAnimation(const glm::vec3& position, Texture* texture, uint32_t frameIndex, uint32_t columns, uint32_t rows, float scale, const glm::vec4& tintColor)
 	{

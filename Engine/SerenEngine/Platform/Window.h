@@ -32,6 +32,8 @@ namespace SerenEngine
 		virtual InputState* GetInputState() = 0;
 		virtual float GetTimeSeconds() = 0;
 		virtual void OnUpdate() = 0;
+		virtual int32_t GetWidth() = 0;
+		virtual int32_t GetHeight() = 0;
 	protected:
 		INativeWindow() = default;
 		INativeWindow(INativeWindow&) = default;
@@ -46,6 +48,8 @@ namespace SerenEngine
 		virtual void SwapBuffers() override;
 		virtual void PollEvents() override;
 		virtual bool ShouldClose() override;
+		virtual int32_t GetWidth() override;
+		virtual int32_t GetHeight() override;
 		virtual InputState* GetInputState() override;
 		virtual float GetTimeSeconds() override;
 		GLFWwindow* GetWindow() const { return m_Window; }

@@ -26,7 +26,8 @@ namespace SerenEngine {
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 		m_Window = glfwCreateWindow(config.Width, config.Height, config.Title, nullptr, nullptr);
-
+		m_WindowData.Width = config.Width;
+		m_WindowData.Height = config.Height;
 		if (!m_Window)
 		{
 			CORE_LOG_CRITICAL("Failed to create window");
@@ -124,6 +125,14 @@ namespace SerenEngine {
 	bool GLFWPlatformWindow::ShouldClose()
 	{
 		return glfwWindowShouldClose(m_Window);
+	}
+	int32_t GLFWPlatformWindow::GetWidth()
+	{
+		return m_WindowData.Width;
+	}
+	int32_t GLFWPlatformWindow::GetHeight()
+	{
+		return m_WindowData.Height;
 	}
 	InputState* GLFWPlatformWindow::GetInputState()
 	{

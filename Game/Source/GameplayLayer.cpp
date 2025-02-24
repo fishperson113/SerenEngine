@@ -1,13 +1,11 @@
 ﻿#include"GameplayLayer.h"
 #include<SerenEngine/Base.h>
 #include<ECS/System/System.h>
-#include<Renderer/RenderCommand.h>
-#include<Resource/Buffer.h>
-#include<Renderer/Renderer.h>
 using namespace SerenEngine;
-GameplayLayer::GameplayLayer() : m_CameraController(1280.0f / 720.0f, 720.0f) {
+GameplayLayer::GameplayLayer() {
 	LOG_TRACE("GameplayLayer is created");
-	m_CameraController.GetCamera().SetViewportSize(1280.0f, 720.0f);
+	CreateCameraController(1280, 720);
+	Random::Init();
 }
 void GameplayLayer::OnAttach() {
 	/*LOG_TRACE("GameplayLayer is attached");
@@ -38,49 +36,82 @@ void GameplayLayer::OnAttach() {
 	}
 	memoryManager->ClearOnStack();*/
 	//mTexture = Texture::Create("Assets/Textures/pngimg.com - mario_PNG109.png");
-	mTexture = Texture::Create("Assets/Textures/40308.png");
 	mRenderer = Application::Get().GetRenderer();
+	m_Level.Init();
+	ImGuiIO& io = ImGui::GetIO();
+	m_Font = io.Fonts->AddFontFromFileTTF("Assets/OpenSans-Regular.ttf", 120.0f);
 }
 void GameplayLayer::OnDetach() {
 	LOG_TRACE("GameplayLayer is detached");
 }
 void GameplayLayer::OnUpdate(Time time) {
-	m_CameraController.OnUpdate(time.GetDeltaTime());
+
+	m_Time += time.GetDeltaTime();
+	if ((int)(m_Time * 10.0f) % 8 > 4)
+		m_Blink = !m_Blink;
+
+	if (m_Level.IsGameOver())
+		m_State = GameState::GameOver;
+
+	const auto& playerPos = m_Level.GetPlayer().GetPosition();
+	m_CameraController.GetCamera().SetPosition({playerPos.x, 0.0f, 0.0f});
+
+	switch (m_State)
+	{
+		case GameState::Play:
+		{
+			m_Level.OnUpdate(time.GetDeltaTime());
+			break;
+		}
+	}
+	RenderCommand::SetClearColor( 0.0f, 0.0f, 0.0f,1.0f );
+
 	mRenderer->BeginScene(m_CameraController.GetCamera());
-	RenderCommand::SetClearColor(1.0f, 0.3f, 0.6f);
-	float angle=(27*3.14)/180.0f;
-	Renderer::DrawRotatedQuad(glm::vec2(0.0f, 0.0f),
-					   glm::vec2(100.0f, 100.0f),
-						angle,
-					   glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
-	/*
-	Renderer::DrawRotatedQuad(glm::vec3(2.0f, 0.0f, 0.0f),
-		glm::vec2(3.0f, 1.0f),
-		angle,
-		glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));*/
-	//Renderer::DrawQuad(glm::vec2(50.0f, 0.0f), glm::vec2(50.0f, 50.0f), mTexture, 1.0f, glm::vec4(1.0f));
-	//Renderer::DrawSprite(glm::vec3(2.0f, 1.0f, 0.0f), mTexture, 1.0f, glm::vec4(1.0f));
-
-	static float elapsedTime = 0.0f;
-	elapsedTime += time.GetDeltaTime();
-	uint32_t totalFrames = 9;
-	float frameDuration = 0.1f;
-	uint32_t currentFrame = static_cast<uint32_t>(elapsedTime /frameDuration) % totalFrames;
-
-	uint32_t columns = 3;
-	uint32_t rows = 3;
-
-	glm::vec3 spritePos(2.0f, 1.0f, 0.0f);
-
-	Renderer::DrawSpriteAnimation(spritePos, mTexture, currentFrame, columns, rows, 0.5f, glm::vec4(1.0f));
-
-	Renderer::DrawCircle(glm::vec2(0.0f, 50.0f), 50, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
-	Renderer::DrawLine(glm::vec2(0.0f, 0.0f), glm::vec2(1.0f, 1.0f), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f),200);
-
-	Renderer::DrawLine(glm::vec2(0.0f, 0.0f), glm::vec2(0.0f, 1.0f), glm::vec4(1.0f, 0.0f, 3.0f, 1.0f), 200);
-
+	m_Level.OnRender();
 	mRenderer->EndScene();
 
+}
+void GameplayLayer::OnImGuiRender()
+{
+	switch (m_State)
+	{
+		case GameState::Play:
+		{
+			uint32_t playerScore = m_Level.GetPlayer().GetScore();
+			std::string scoreStr = std::string("Score: ") + std::to_string(playerScore);
+			ImGui::GetForegroundDrawList()->AddText(m_Font, 48.0f, ImGui::GetWindowPos(), 0xffffffff, scoreStr.c_str());
+			break;
+		}
+		case GameState::MainMenu:
+		{
+			auto pos = ImGui::GetWindowPos();
+			auto width = Application::Get().GetWindow()->GetWidth();
+			auto height = Application::Get().GetWindow()->GetHeight();
+			pos.x += width * 0.5f - 300.0f;
+			pos.y += 50.0f;
+			if (m_Blink)
+				ImGui::GetForegroundDrawList()->AddText(m_Font, 120.0f, pos, 0xffffffff, "Click to Play!");
+			//m_Level.GetPlayer().OnImGuiRender();
+			break;
+		}
+		case GameState::GameOver:
+		{
+			auto pos = ImGui::GetWindowPos();
+			auto width = Application::Get().GetWindow()->GetWidth();
+			auto height = Application::Get().GetWindow()->GetHeight();
+			pos.x += width * 0.5f - 300.0f;
+			pos.y += 50.0f;
+			if (m_Blink)
+				ImGui::GetForegroundDrawList()->AddText(m_Font, 120.0f, pos, 0xffffffff, "Click to Play!");
+			//m_Level.GetPlayer().OnImGuiRender();
+			pos.x += 200.0f;
+			pos.y += 150.0f;
+			uint32_t playerScore = m_Level.GetPlayer().GetScore();
+			std::string scoreStr = std::string("Score: ") + std::to_string(playerScore);
+			ImGui::GetForegroundDrawList()->AddText(m_Font, 48.0f, pos, 0xffffffff, scoreStr.c_str());
+			break;
+		}
+	}
 }
 bool GameplayLayer::OnKeyPressedEvent(const KeyPressedEvent& eventContext) {
 	return false;
@@ -88,17 +119,37 @@ bool GameplayLayer::OnKeyPressedEvent(const KeyPressedEvent& eventContext) {
 
 void GameplayLayer::OnProcessInput(const InputState& input)
 {
-	m_CameraController.OnProcessInput(input);
+	//m_CameraController.OnProcessInput(input);
+	m_Level.GetPlayer().SetInputState(input);
 }
 
 bool GameplayLayer::OnWindowResizedEvent(const SerenEngine::WindowResizedEvent& e)
 {
-	m_CameraController.OnWindowResizedEvent(e);
+	CreateCameraController(e.GetWidth(), e.GetHeight());
 	return false;
 }
 
-bool GameplayLayer::OnMouseScrolledEvent(const SerenEngine::MouseScrolledEvent& e)
+bool GameplayLayer::OnMouseButtonPressedEvent(const MouseButtonPressedEvent&)
 {
-	m_CameraController.OnMouseScrolledEvent(e);
+	if (m_State == GameState::GameOver)
+		m_Level.Reset();
+
+	m_State = GameState::Play;
 	return false;
+}
+
+void GameplayLayer::CreateCameraController(uint32_t width, uint32_t height)
+{
+	float aspectRatio = static_cast<float>(width) / height;
+	float zoomLevel = height * 0.5f;
+
+	//perfect pixel
+	float left = -aspectRatio * zoomLevel;
+	float right = aspectRatio * zoomLevel;
+	float bottom = -zoomLevel;
+	float top = zoomLevel;
+
+	m_CameraController.SetZoomLevel(zoomLevel);
+	m_CameraController.SetAspectRatio(aspectRatio);
+	m_CameraController.GetCamera().SetProjection(left,right,bottom,top);
 }

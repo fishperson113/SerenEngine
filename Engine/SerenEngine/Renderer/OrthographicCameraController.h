@@ -10,6 +10,7 @@ namespace SerenEngine {
 	class OrthographicCameraController
 	{
 	public:
+		OrthographicCameraController() {};
 		OrthographicCameraController(float aspectRatio, float windowHeight, bool rotation = false);
 
 		void OnUpdate(float ts);
@@ -21,6 +22,7 @@ namespace SerenEngine {
 
 		float GetZoomLevel() const { return m_ZoomLevel; }
 		void SetZoomLevel(float level) { m_ZoomLevel = level; }
+		void SetAspectRatio(float aspectRatio) { m_AspectRatio = aspectRatio; }
 		bool OnWindowResizedEvent(const WindowResizedEvent& e);
 		bool OnMouseScrolledEvent(const MouseScrolledEvent& e);
 	private:

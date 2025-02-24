@@ -15,7 +15,6 @@ namespace SerenEngine {
 
 		virtual void OnProcessInput(const struct InputState&) {}
 		virtual void OnUpdate(Time deltaTime) {}
-		virtual void OnGuiRender() {}
 		virtual void OnImGuiRender() {}
 
 		virtual bool OnWindowResizedEvent(const WindowResizedEvent&) { return false; }

@@ -1,13 +1,7 @@
 #pragma once
-#include <Core/Layer/Layer.h>
-#include<Resource/VertexBuffer.h>
-#include<Resource/IndexBuffer.h>
-#include<Resource/Shader.h>
-#include<Resource/VertexArray.h>
-#include<Resource/Texture.h>
-#include<Renderer/OrthographicCameraController.h>
-#include"pch.h"
-#include"Renderer/Renderer.h"
+#include "SerenEngine.h"
+#include "Level.h"
+#include"imgui.h"
 class GameplayLayer : public SerenEngine::Layer
 {
 public:
@@ -17,12 +11,26 @@ public:
 	virtual void OnAttach() override;
 	virtual void OnDetach() override;
 	virtual void OnUpdate(SerenEngine::Time time) override;
+	virtual void OnImGuiRender() override;
 	virtual bool OnKeyPressedEvent(const SerenEngine::KeyPressedEvent& eventContext);
 	virtual void OnProcessInput(const SerenEngine::InputState&) override;
 	virtual bool OnWindowResizedEvent(const SerenEngine::WindowResizedEvent&) override;
-	virtual bool OnMouseScrolledEvent(const SerenEngine::MouseScrolledEvent&) override;
+	virtual bool OnMouseButtonPressedEvent(const SerenEngine::MouseButtonPressedEvent&) override;
+	//virtual bool OnMouseScrolledEvent(const SerenEngine::MouseScrolledEvent&) override;
+private:
+	void CreateCameraController(uint32_t width, uint32_t height);
 private:
 	SerenEngine::Renderer* mRenderer;
+	Level m_Level;
 	SerenEngine::OrthographicCameraController m_CameraController;
-	SerenEngine::Texture* mTexture;
+	float m_Time = 0.0f;
+	ImFont* m_Font;
+	bool m_Blink = false;
+
+	enum class GameState
+	{
+		Play = 0, MainMenu = 1, GameOver = 2
+	};
+
+	GameState m_State = GameState::MainMenu;
 };

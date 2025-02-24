@@ -40,6 +40,7 @@ namespace SerenEngine {
 		FORCE_INLINE INativeWindow* GetWindow() const { return mNativeWindow.get(); }
 		FORCE_INLINE const PerFrameData& GetPerFrameData() const { return mPerFrameData; }
 		FORCE_INLINE Renderer* GetRenderer() const { return mRenderer; }
+		FORCE_INLINE ApplicationConfiguration GetConfiguration() const { return mConfig; }
 	protected:
 		Application() = default;
 		Application(const ApplicationConfiguration&);

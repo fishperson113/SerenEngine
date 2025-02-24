@@ -1,4 +1,4 @@
-project(Game VERSION 0.1)
+﻿project(Game VERSION 0.1)
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-rtti")
@@ -11,7 +11,9 @@ set(CMAKE_CXX_STANDARD 17)
 
 file(GLOB_RECURSE SRC_FILES ${CMAKE_CURRENT_SOURCE_DIR}/Source/*.cpp CMAKE_CONFIGURE_DEPENDS)
 add_executable(${PROJECT_NAME} ${SRC_FILES})
-
+if (CMAKE_BUILD_TYPE STREQUAL "Release")
+    set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "/SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup")
+endif()
 target_link_libraries(${PROJECT_NAME} PRIVATE SerenEngine)
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/Source ${CMAKE_SOURCE_DIR}/Engine)
 

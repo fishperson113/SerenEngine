@@ -67,9 +67,9 @@ namespace SerenEngine {
 		ResourceManager::OnInit(mConfig.RendererSpec);
 		mRenderer->OnInit(mConfig);
 		Renderer::EnableBlending();
-		OnInitClient();
 		m_ImGuiLayer = new SerenEngine::ImGuiLayer();
 		PushOverlayLayer(m_ImGuiLayer);
+		OnInitClient();
 		return true;
 	}
 
@@ -109,9 +109,11 @@ namespace SerenEngine {
 			}
 
 			mSystemManager->OnUpdate(MAX_DELTA_TIME);
+			m_ImGuiLayer->Begin();
 			for (auto layer : *mLayerStack) {
-				layer->OnGuiRender();
+				layer->OnImGuiRender();
 			}
+			m_ImGuiLayer->End();
 			mNativeWindow->OnUpdate();
 			MemoryMonitor::Get().Update();
 			mPerFrameData.FrameIndex++;
