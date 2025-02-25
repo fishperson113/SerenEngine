@@ -17,8 +17,8 @@ void Player::OnUpdate(SerenEngine::Time ts)
 {
     if (m_Body)
     {
-        // Nếu nhấn SPACE, áp dụng lực dọc theo trục Y (lực hướng lên)
-        if (m_InputState.Keyboard->GetValue(EKeyCode::SPACE))
+        bool flapping = m_InputState.Keyboard->GetValue(EKeyCode::SPACE);
+        if (flapping)
         {
             b2Vec2 impulse(0.0f, m_EnginePower);
             m_Body->ApplyLinearImpulse(impulse, m_Body->GetWorldCenter(), true);
@@ -27,6 +27,22 @@ void Player::OnUpdate(SerenEngine::Time ts)
         b2Vec2 velocity = m_Body->GetLinearVelocity();
         velocity.x = m_Speed; 
         m_Body->SetLinearVelocity(velocity);
+        float targetAngle;
+        if (flapping)
+        {
+            targetAngle = glm::radians(40.0f);
+        }
+        else
+        {
+            targetAngle = glm::radians(-40.0f);
+        }
+
+        // Nội suy góc hiện tại về góc mục tiêu
+        float currentAngle = m_Body->GetAngle();
+        float lerpFactor = 5.0f * ts.GetDeltaTime(); // điều chỉnh tốc độ xoay
+        float newAngle = currentAngle + (targetAngle - currentAngle) * lerpFactor;
+
+        m_Body->SetTransform(m_Body->GetPosition(), newAngle);
 
         b2Vec2 physPos = m_Body->GetPosition();
         m_Position = glm::vec2(physPos.x, physPos.y);
@@ -38,7 +54,7 @@ void Player::OnRender()
 {
     glm::vec2 pixelPos = m_Position * PPM;
 
-    Renderer::DrawSprite({ pixelPos.x, pixelPos.y, 0.5f }, m_Rotation, m_ShipTexture, 5.f, glm::vec4(1.0f));
+    Renderer::DrawSprite({ pixelPos.x, pixelPos.y, 0.5f }, m_Rotation-glm::radians(90.0f), m_ShipTexture, 5.f, glm::vec4(1.0f));
 }
 
 void Player::OnImGuiRender()

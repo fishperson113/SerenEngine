@@ -70,7 +70,7 @@ void GameplayLayer::OnUpdate(Time time) {
 	const auto& playerPos = m_Level.GetPlayer().GetPosition();
 	glm::vec2 pixelPos = playerPos * PPM; 
 	m_CameraController.GetCamera().SetPosition({ pixelPos.x, 0.0f, 0.0f });
-	RenderCommand::SetClearColor( 0.0f, 0.0f, 0.0f,1.0f );
+	RenderCommand::SetClearColor(0.78f, 0.86f, 0.61f, 1.0f);
 
 	mRenderer->BeginScene(m_CameraController.GetCamera());
 	m_Level.OnRender();
