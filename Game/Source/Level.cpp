@@ -87,7 +87,7 @@ void Level::Init(b2World* worldId)
 	b2Vec2 initialPos = { -20.0f, 0.0f };
 	float playerScale = 5.0f;
 
-	//m_Player.Spawn(worldId, initialPos, playerScale, nullptr);
+	m_Player.Spawn(worldId, initialPos, playerScale, nullptr);
 
 	m_PillarTarget = 200.0f;
 	m_Pillars.resize(10);
@@ -112,10 +112,10 @@ void Level::OnUpdate(SerenEngine::Time ts)
 	{
 		farthestPillarX = std::max(farthestPillarX, pillar.TopPosition.x);
 	}
-
+	glm::vec2 playerPixelPos = m_Player.GetPosition() * PPM;
 	for (auto& pillar : m_Pillars)
 	{
-		if (pillar.TopPosition.x < m_Player.GetPosition().x - screenWidth / 2 - buffer)
+		if (pillar.TopPosition.x < playerPixelPos.x - screenWidth / 2 - buffer)
 		{
 			RepositioningPillar(pillar, farthestPillarX + 200.0f);
 			farthestPillarX = pillar.TopPosition.x;
@@ -148,7 +148,7 @@ void Level::Reset()
 	m_GameOver = false;
 	m_Player.Reset();
 
-	float startOffset = m_Player.GetPosition().x + 200.0f;
+	float startOffset = (m_Player.GetPosition().x * PPM) + 200.0f;
 	for (int i = 0; i < m_Pillars.size(); i++)
 	{
 		RepositioningPillar(m_Pillars[i], startOffset + i * 200.0f);
@@ -169,9 +169,11 @@ void Level::RepositioningPillar(Pillar& pillar, float offset)
 
 bool Level::CollisionTest()
 {
-	if (glm::abs(m_Player.GetPosition().y) > (Application::Get().GetWindow()->GetHeight() / 2))
+	glm::vec2 playerPixelPos = m_Player.GetPosition() * PPM;
+	float halfScreenHeight = Application::Get().GetWindow()->GetHeight() / 2.0f;
+
+	if (glm::abs(playerPixelPos.y) > halfScreenHeight)
 		return true;
-	// Tính toán các đỉnh của player (hình chữ nhật)
 
 	return false;
 }

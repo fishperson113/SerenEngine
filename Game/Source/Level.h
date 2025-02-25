@@ -2,6 +2,7 @@
 
 #include "Player.h"
 #include"box2d/box2d.h"
+#include"box2d/box2d.h"
 using namespace SerenEngine;
 struct Pillar
 {
@@ -26,6 +27,8 @@ public:
 	void Reset();
 
 	Player& GetPlayer() { return m_Player; }
+
+	
 private:
 	void RepositioningPillar(Pillar& pillar, float offset);
 	bool CollisionTest();

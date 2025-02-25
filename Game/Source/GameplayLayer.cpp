@@ -6,7 +6,7 @@ GameplayLayer::GameplayLayer() {
 	LOG_TRACE("GameplayLayer is created");
 	CreateCameraController(1280, 720);
 	Random::Init();
-	m_World = new b2World(b2Vec2(0.0f, -9.8f));
+	m_World = new b2World(b2Vec2(0.0f, -20.f));
 }
 void GameplayLayer::OnAttach() {
 	/*LOG_TRACE("GameplayLayer is attached");
@@ -55,17 +55,21 @@ void GameplayLayer::OnUpdate(Time time) {
 	if (m_Level.IsGameOver())
 		m_State = GameState::GameOver;
 
-	const auto& playerPos = m_Level.GetPlayer().GetPosition();
-	m_CameraController.GetCamera().SetPosition({playerPos.x, 0.0f, 0.0f});
-
 	switch (m_State)
 	{
 		case GameState::Play:
 		{
 			m_Level.OnUpdate(time.GetDeltaTime());
+			if (m_World)
+			{
+				m_World->Step(time.GetDeltaTime(), 6, 2);
+			}
 			break;
 		}
 	}
+	const auto& playerPos = m_Level.GetPlayer().GetPosition();
+	glm::vec2 pixelPos = playerPos * PPM; 
+	m_CameraController.GetCamera().SetPosition({ pixelPos.x, 0.0f, 0.0f });
 	RenderCommand::SetClearColor( 0.0f, 0.0f, 0.0f,1.0f );
 
 	mRenderer->BeginScene(m_CameraController.GetCamera());

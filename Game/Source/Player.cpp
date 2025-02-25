@@ -3,6 +3,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 using namespace SerenEngine;
+
 Player::Player()
 {
 }
@@ -14,33 +15,78 @@ void Player::LoadAssets()
 
 void Player::OnUpdate(SerenEngine::Time ts)
 {
-	m_Time += ts.GetDeltaTime();
-	if (m_InputState.Keyboard->GetValue(EKeyCode::SPACE)) {
-		m_Velocity.y += m_EnginePower;
-		if (m_Velocity.y < 0.0f)
-			m_Velocity.y += m_EnginePower * 2.0f;
-	}
-	else {
-		m_Velocity.y -= m_Gravity;
-	}
-	m_Velocity.x = m_Speed;
-	m_Position += m_Velocity * ts.GetDeltaTime();
+    if (m_Body)
+    {
+        // Nếu nhấn SPACE, áp dụng lực dọc theo trục Y (lực hướng lên)
+        if (m_InputState.Keyboard->GetValue(EKeyCode::SPACE))
+        {
+            b2Vec2 impulse(0.0f, m_EnginePower);
+            m_Body->ApplyLinearImpulse(impulse, m_Body->GetWorldCenter(), true);
+        }
+
+        b2Vec2 velocity = m_Body->GetLinearVelocity();
+        velocity.x = m_Speed; 
+        m_Body->SetLinearVelocity(velocity);
+
+        b2Vec2 physPos = m_Body->GetPosition();
+        m_Position = glm::vec2(physPos.x, physPos.y);
+        m_Rotation = m_Body->GetAngle();
+    }
 }
 
 void Player::OnRender()
 {
-	Renderer::DrawSprite({ m_Position.x, m_Position.y, 0.5f }, glm::radians(GetRotation()), m_ShipTexture, 5.f, glm::vec4(1.0f));
+    glm::vec2 pixelPos = m_Position * PPM;
+
+    Renderer::DrawSprite({ pixelPos.x, pixelPos.y, 0.5f }, m_Rotation, m_ShipTexture, 5.f, glm::vec4(1.0f));
 }
 
 void Player::OnImGuiRender()
 {
 	ImGui::DragFloat("Engine Power", &m_EnginePower, 0.1f);
-	ImGui::DragFloat("Gravity", &m_Gravity, 0.1f);
 	ImGui::DragFloat("Speed", &m_Speed, 0.1f);
 }
 
 void Player::Reset()
 {
 	m_Position = { -10.0f, 0.0f };
-	m_Velocity = { 5.0f, 0.0f };
+
+    if (m_Body)
+    {
+        m_Body->SetTransform(b2Vec2(-10.0f, 0.0f), 0.0f);
+        m_Body->SetLinearVelocity(b2Vec2(0.0f, 0.0f));
+        m_Body->SetAngularVelocity(0.0f);
+    }
+}
+
+void Player::Spawn(b2World* world, const b2Vec2& position, float scale, void* userData)
+{
+    if (m_Body != nullptr)
+        return;
+
+    b2BodyDef bodyDef;
+    bodyDef.type = b2_dynamicBody;
+    bodyDef.position = b2Vec2(position.x / PPM, position.y / PPM);
+    bodyDef.userData.pointer = reinterpret_cast<uintptr_t>(userData);
+
+    m_Body = world->CreateBody(&bodyDef);
+
+    b2PolygonShape boxShape;
+    boxShape.SetAsBox(scale * 0.5f, scale * 0.5f);
+
+    b2FixtureDef fixtureDef;
+    fixtureDef.shape = &boxShape;
+    fixtureDef.density = 5.0f;
+    fixtureDef.friction = 0.3f;
+
+    m_Body->CreateFixture(&fixtureDef);
+}
+
+void Player::Despawn(b2World* world)
+{
+    if (m_Body)
+    {
+        world->DestroyBody(m_Body);
+        m_Body = nullptr;
+    }
 }
