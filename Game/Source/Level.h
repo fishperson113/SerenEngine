@@ -11,6 +11,9 @@ struct Pillar
 
 	glm::vec3 BottomPosition = { 50.0f, -Application::Get().GetWindow()->GetHeight() / 2, 0.0f };
 	float BottomScale = 0.5f;
+
+	b2Body* TopBody = nullptr;
+	b2Body* BottomBody = nullptr;
 };
 
 class Level
@@ -33,6 +36,7 @@ private:
 	void RepositioningPillar(Pillar& pillar, float offset);
 	bool CollisionTest();
 
+	void CreatePillarBodies(b2World* world);
 	void GameOver();
 private:
 	Player m_Player;

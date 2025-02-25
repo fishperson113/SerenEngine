@@ -61,15 +61,15 @@ static bool PointInTri(const glm::vec2& p, glm::vec2& p0, const glm::vec2& p1, c
 		(s >= 0 && s + t <= A);
 }
 static const std::vector<std::array<glm::vec4, 3>> localPillarCollision = {
-	{ // Triangle A
-		glm::vec4(-0.5f, -0.5f, 0.0f, 1.0f),
-		glm::vec4(0.5f, -0.5f, 0.0f, 1.0f),
-		glm::vec4(0.5f,  0.5f, 0.0f, 1.0f)
+	{ 
+		glm::vec4(0.0f, 0.577f, 0.0f, 1.0f),  
+		glm::vec4(-0.5f, -0.289f, 0.0f, 1.0f),
+		glm::vec4(0.5f, -0.289f, 0.0f, 1.0f)  
 	},
-	{ // Triangle B
-		glm::vec4(-0.5f, -0.5f, 0.0f, 1.0f),
-		glm::vec4(0.5f,  0.5f, 0.0f, 1.0f),
-		glm::vec4(-0.5f,  0.5f, 0.0f, 1.0f)
+	{ 
+		glm::vec4(0.0f, 0.577f, 0.0f, 1.0f),
+		glm::vec4(0.5f, -0.289f, 0.0f, 1.0f),
+		glm::vec4(-0.5f, -0.289f, 0.0f, 1.0f)
 	}
 };
 void Level::Init()
@@ -91,6 +91,9 @@ void Level::Init(b2World* worldId)
 
 	m_PillarTarget = 200.0f;
 	m_Pillars.resize(10);
+
+	CreatePillarBodies(worldId);
+
 	Reset();
 }
 
@@ -165,6 +168,11 @@ void Level::RepositioningPillar(Pillar& pillar, float offset)
 
 	pillar.TopPosition = { offset, height / 2 - ((height / 2 - center) * 0.2f) + gap * 0.5f, 0.0f };
 	pillar.BottomPosition = { offset, -height / 2 - ((-height / 2 - center) * 0.2f) - gap * 0.5f, 0.0f };
+
+	if (pillar.TopBody)
+		pillar.TopBody->SetTransform(b2Vec2(pillar.TopPosition.x / PPM, pillar.TopPosition.y / PPM), 0.0f);
+	if (pillar.BottomBody)
+		pillar.BottomBody->SetTransform(b2Vec2(pillar.BottomPosition.x / PPM, pillar.BottomPosition.y / PPM), 0.0f);
 }
 
 bool Level::CollisionTest()
@@ -175,7 +183,90 @@ bool Level::CollisionTest()
 	if (glm::abs(playerPixelPos.y) > halfScreenHeight)
 		return true;
 
+	b2Body* playerBody = m_Player.GetBody();
+	if (playerBody)
+	{
+		for (b2Fixture* pf = playerBody->GetFixtureList(); pf; pf = pf->GetNext())
+		{
+			// Lặp qua từng pillar
+			for (const auto& pillar : m_Pillars)
+			{
+				// Kiểm tra Top Pillar
+				if (pillar.TopBody)
+				{
+					for (b2Fixture* pillarF = pillar.TopBody->GetFixtureList(); pillarF; pillarF = pillarF->GetNext())
+					{
+						if (b2TestOverlap(pf->GetShape(), 0,
+							pillarF->GetShape(), 0,
+							playerBody->GetTransform(),
+							pillar.TopBody->GetTransform()))
+						{
+							return true;
+						}
+					}
+				}
+				// Kiểm tra Bottom Pillar
+				if (pillar.BottomBody)
+				{
+					for (b2Fixture* pillarF = pillar.BottomBody->GetFixtureList(); pillarF; pillarF = pillarF->GetNext())
+					{
+						if (b2TestOverlap(pf->GetShape(), 0,
+							pillarF->GetShape(), 0,
+							playerBody->GetTransform(),
+							pillar.BottomBody->GetTransform()))
+						{
+							return true;
+						}
+					}
+				}
+			}
+		}
+	}
 	return false;
+}
+
+void Level::CreatePillarBodies(b2World* world)
+{
+	for (auto& pillar : m_Pillars)
+	{
+		b2BodyDef topBodyDef;
+		topBodyDef.type = b2_staticBody;
+		topBodyDef.position = b2Vec2(pillar.TopPosition.x / PPM, pillar.TopPosition.y / PPM);
+		pillar.TopBody = world->CreateBody(&topBodyDef);
+
+		b2PolygonShape topShape;
+		b2Vec2 vertices[3];
+		for (int i = 0; i < 3; i++)
+		{
+			vertices[i].Set(localPillarCollision[0][i].x * pillar.TopScale,
+				localPillarCollision[0][i].y * pillar.TopScale);
+		}
+		topShape.Set(vertices, 3);
+
+		b2FixtureDef topFixtureDef;
+		topFixtureDef.shape = &topShape;
+		topFixtureDef.density = 0.0f; 
+		pillar.TopBody->CreateFixture(&topFixtureDef);
+
+		b2BodyDef bottomBodyDef;
+		bottomBodyDef.type = b2_staticBody;
+		bottomBodyDef.position = b2Vec2(pillar.BottomPosition.x / PPM, pillar.BottomPosition.y / PPM);
+		pillar.BottomBody = world->CreateBody(&bottomBodyDef);
+
+		b2PolygonShape bottomShape;
+		b2Vec2 vertices2[3];
+		for (int i = 0; i < 3; i++)
+		{
+			vertices2[i].Set(localPillarCollision[1][i].x * pillar.BottomScale,
+				localPillarCollision[1][i].y * pillar.BottomScale);
+		}
+		bottomShape.Set(vertices2, 3);
+
+		b2FixtureDef bottomFixtureDef;
+		bottomFixtureDef.shape = &bottomShape;
+		bottomFixtureDef.density = 0.0f;
+		pillar.BottomBody->CreateFixture(&bottomFixtureDef);
+	}
 }
 
 void Level::GameOver()

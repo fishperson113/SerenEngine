@@ -26,6 +26,8 @@ public:
 	void Spawn(b2World* world, const b2Vec2& position, float scale, void* userData = nullptr);
 
 	void Despawn(b2World* world);
+
+	b2Body* Player::GetBody() { return m_Body; }
 private:
 	float m_Speed = 5.f;
 	float m_Rotation = 0.0f;
