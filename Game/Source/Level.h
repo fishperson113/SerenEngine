@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Player.h"
+#include"box2d/box2d.h"
 using namespace SerenEngine;
 struct Pillar
 {
@@ -15,7 +16,7 @@ class Level
 {
 public:
 	void Init();
-
+	void Init(b2World* world);
 	void OnUpdate(SerenEngine::Time ts);
 	void OnRender();
 
@@ -26,7 +27,7 @@ public:
 
 	Player& GetPlayer() { return m_Player; }
 private:
-	void CreatePillar(int index, float offset);
+	void RepositioningPillar(Pillar& pillar, float offset);
 	bool CollisionTest();
 
 	void GameOver();

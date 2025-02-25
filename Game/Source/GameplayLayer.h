@@ -2,6 +2,7 @@
 #include "SerenEngine.h"
 #include "Level.h"
 #include"imgui.h"
+#include"box2d/box2d.h"
 class GameplayLayer : public SerenEngine::Layer
 {
 public:
@@ -26,7 +27,7 @@ private:
 	float m_Time = 0.0f;
 	ImFont* m_Font;
 	bool m_Blink = false;
-
+	b2World* m_World;
 	enum class GameState
 	{
 		Play = 0, MainMenu = 1, GameOver = 2

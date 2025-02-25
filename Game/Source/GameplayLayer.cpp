@@ -6,6 +6,7 @@ GameplayLayer::GameplayLayer() {
 	LOG_TRACE("GameplayLayer is created");
 	CreateCameraController(1280, 720);
 	Random::Init();
+	m_World = new b2World(b2Vec2(0.0f, -9.8f));
 }
 void GameplayLayer::OnAttach() {
 	/*LOG_TRACE("GameplayLayer is attached");
@@ -37,7 +38,8 @@ void GameplayLayer::OnAttach() {
 	memoryManager->ClearOnStack();*/
 	//mTexture = Texture::Create("Assets/Textures/pngimg.com - mario_PNG109.png");
 	mRenderer = Application::Get().GetRenderer();
-	m_Level.Init();
+
+	m_Level.Init(m_World);
 	ImGuiIO& io = ImGui::GetIO();
 	m_Font = io.Fonts->AddFontFromFileTTF("Assets/OpenSans-Regular.ttf", 120.0f);
 }

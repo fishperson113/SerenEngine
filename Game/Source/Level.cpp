@@ -1,4 +1,6 @@
 ﻿#include"Level.h"
+#include <glm/gtc/matrix_transform.hpp>
+
 using namespace SerenEngine;
 
 static glm::vec4 HSVtoRGB(const glm::vec3& hsv) {
@@ -58,14 +60,38 @@ static bool PointInTri(const glm::vec2& p, glm::vec2& p0, const glm::vec2& p1, c
 		(s <= 0 && s + t >= A) :
 		(s >= 0 && s + t <= A);
 }
+static const std::vector<std::array<glm::vec4, 3>> localPillarCollision = {
+	{ // Triangle A
+		glm::vec4(-0.5f, -0.5f, 0.0f, 1.0f),
+		glm::vec4(0.5f, -0.5f, 0.0f, 1.0f),
+		glm::vec4(0.5f,  0.5f, 0.0f, 1.0f)
+	},
+	{ // Triangle B
+		glm::vec4(-0.5f, -0.5f, 0.0f, 1.0f),
+		glm::vec4(0.5f,  0.5f, 0.0f, 1.0f),
+		glm::vec4(-0.5f,  0.5f, 0.0f, 1.0f)
+	}
+};
 void Level::Init()
 {
 	m_TriangleTexture = Texture::Create("Assets/Textures/Triangle.png");
 	m_Player.LoadAssets();
-	m_PillarTarget = 150.0f;
-	m_Pillars.resize(20);
-	for (int i = 0; i < 20; i++)
-		CreatePillar(i, i * 200.0f);
+	m_PillarTarget = 200.0f;
+	m_Pillars.resize(10);
+	Reset();
+}
+void Level::Init(b2World* worldId)
+{
+	m_TriangleTexture = Texture::Create("Assets/Textures/Triangle.png");
+	m_Player.LoadAssets();
+	b2Vec2 initialPos = { -20.0f, 0.0f };
+	float playerScale = 5.0f;
+
+	//m_Player.Spawn(worldId, initialPos, playerScale, nullptr);
+
+	m_PillarTarget = 200.0f;
+	m_Pillars.resize(10);
+	Reset();
 }
 
 void Level::OnUpdate(SerenEngine::Time ts)
@@ -78,11 +104,22 @@ void Level::OnUpdate(SerenEngine::Time ts)
 		return;
 	}
 
-	if (m_Player.GetPosition().x > m_PillarTarget)
+	float screenWidth = Application::Get().GetWindow()->GetWidth();
+	float buffer = 50.0f; // Small buffer for smoother repositioning
+
+	float farthestPillarX = 0.0f;
+	for (const auto& pillar : m_Pillars)
 	{
-		CreatePillar(m_PillarIndex, m_PillarTarget + 200.0f);
-		m_PillarIndex = ++m_PillarIndex % m_Pillars.size();
-		m_PillarTarget += 200.0f;
+		farthestPillarX = std::max(farthestPillarX, pillar.TopPosition.x);
+	}
+
+	for (auto& pillar : m_Pillars)
+	{
+		if (pillar.TopPosition.x < m_Player.GetPosition().x - screenWidth / 2 - buffer)
+		{
+			RepositioningPillar(pillar, farthestPillarX + 200.0f);
+			farthestPillarX = pillar.TopPosition.x;
+		}
 	}
 }
 
@@ -92,14 +129,10 @@ void Level::OnRender()
 
 	glm::vec4 color = HSVtoRGB(m_PillarHSV);
 
-	//// Floor and ceiling
-	Renderer::DrawQuad({ playerPos.x,Application::Get().GetWindow()->GetHeight()/2}, {Application::Get().GetWindow()->GetWidth(), -200.0f}, color);
-	Renderer::DrawQuad({ playerPos.x,-Application::Get().GetWindow()->GetHeight()/2}, {Application::Get().GetWindow()->GetWidth(), 200.0f }, color);
-
 	for (auto& pillar : m_Pillars)
 	{
 		Renderer::DrawSprite(pillar.TopPosition, glm::radians(180.0f), m_TriangleTexture, pillar.TopScale, color);
-		Renderer::DrawSprite(pillar.BottomPosition, 0.0f, m_TriangleTexture ,pillar.BottomScale, color);
+		Renderer::DrawSprite(pillar.BottomPosition, 0.0f, m_TriangleTexture, pillar.BottomScale, color);
 	}
 
 	m_Player.OnRender();
@@ -113,40 +146,33 @@ void Level::OnImGuiRender()
 void Level::Reset()
 {
 	m_GameOver = false;
-
 	m_Player.Reset();
 
-	m_PillarTarget = 150.0f;
-	m_PillarIndex = 0;
-	for (int i = 0; i < 20; i++)
-		CreatePillar(i, i * 200.0f);
+	float startOffset = m_Player.GetPosition().x + 200.0f;
+	for (int i = 0; i < m_Pillars.size(); i++)
+	{
+		RepositioningPillar(m_Pillars[i], startOffset + i * 200.0f);
+	}
 }
 
-void Level::CreatePillar(int index, float offset)
+void Level::RepositioningPillar(Pillar& pillar, float offset)
 {
-	Pillar& pillar = m_Pillars[index];
-	pillar.TopPosition.x = offset;
-	pillar.BottomPosition.x = offset;
-	pillar.TopPosition.z = index * 0.1f - 0.5f;
-	pillar.BottomPosition.z = index * 0.1f - 0.5f + 0.05f;
-
 	float height = Application::Get().GetWindow()->GetHeight();
-	float topBase = height * 0.5f;
-	float bottomBase = -height * 0.5f;
-
 	float base = height / 72.0f;
 
-	float center = Random::Float() * (35.0f * base) - (17.5f * base);
-	float gap = 1.0f * base + Random::Float() * (2.0f * base);
+	float center = Random::Float() * (100.0f * base) - (50.0f * base);
+	float gap = 50.0f;
 
-	pillar.TopPosition.y = topBase - ((topBase - center) * 0.2f) + gap * 0.5f;
-	pillar.BottomPosition.y = bottomBase - ((bottomBase - center) * 0.2f) - gap * 0.5f;
+	pillar.TopPosition = { offset, height / 2 - ((height / 2 - center) * 0.2f) + gap * 0.5f, 0.0f };
+	pillar.BottomPosition = { offset, -height / 2 - ((-height / 2 - center) * 0.2f) - gap * 0.5f, 0.0f };
 }
 
 bool Level::CollisionTest()
 {
-	if (glm::abs(m_Player.GetPosition().y) > (Application::Get().GetWindow()->GetHeight() / 2)-125)
+	if (glm::abs(m_Player.GetPosition().y) > (Application::Get().GetWindow()->GetHeight() / 2))
 		return true;
+	// Tính toán các đỉnh của player (hình chữ nhật)
+
 	return false;
 }
 

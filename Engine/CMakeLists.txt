@@ -19,9 +19,9 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 
 target_link_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/Vendors/bin)
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-    target_link_libraries(${PROJECT_NAME} PUBLIC spdlogd glfw glm imgui stb_image) # Link bản Debug
+    target_link_libraries(${PROJECT_NAME} PUBLIC spdlogd glfw glm imgui stb_image box2d) # Link bản Debug
 else()
-    target_link_libraries(${PROJECT_NAME} PUBLIC spdlog glfw glm imgui stb_image)  # Link bản Release
+    target_link_libraries(${PROJECT_NAME} PUBLIC spdlog glfw glm imgui stb_image box2d)  # Link bản Release
 endif()
 
 target_precompile_headers(${PROJECT_NAME} PUBLIC 
