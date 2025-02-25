@@ -48,7 +48,7 @@ namespace SerenEngine {
 				BASE_CLASS_ASSERT(ISystem, T, "Get not valid system type");
 
 				SystemTypeID systemID = T::GetStaticTypeID();
-				VI_ASSERT(mSystemMap.count(systemID) && "Get non-existing system");
+				ASSERT(mSystemMap.count(systemID) && "Get non-existing system");
 
 				return *StaticCast<T*>(mSystemMap.at(systemID));
 			}

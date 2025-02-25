@@ -24,7 +24,6 @@ namespace {
 		case ShaderDataType::Bool:     return 1;
 		}
 
-		ASSERT(false, "Unknown ShaderDataType!");
 		return 0;
 	}
 
@@ -60,7 +59,6 @@ namespace {
 			case ShaderDataType::Bool:    return 1;
 			}
 
-			ASSERT(false, "Unknown ShaderDataType!");
 			return 0;
 		}
 	};

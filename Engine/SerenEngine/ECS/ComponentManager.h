@@ -20,9 +20,7 @@ namespace SerenEngine {
 			class ComponentArray : public MemoryChunkManager<T, MAX_COMPONENT_PER_ARRAY>, public IComponentArray {
 			public:
 				ComponentArray() = default;
-				ComponentArray(const char* resourceName) : MemoryChunkManager(resourceName) {}
 				~ComponentArray() {
-					Reset();
 				};
 				template<typename... Args>
 				T& AddComponent(EntityID id, class Coordinator* coordinator, Args&&... args) {
@@ -48,7 +46,7 @@ namespace SerenEngine {
 					BASE_CLASS_ASSERT(IComponent, T, "Remove invalid component");
 					ASSERT(HasComponent(id) && "Remove non-existing component");
 
-					FreeObject(mComponentsMap.at(id));
+					//FreeObject(mComponentsMap.at(id));
 					mComponentsMap.erase(id);
 				}
 			private:

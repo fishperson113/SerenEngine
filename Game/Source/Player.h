@@ -27,7 +27,7 @@ public:
 
 	void Despawn(b2World* world);
 
-	b2Body* Player::GetBody() { return m_Body; }
+	b2Body* GetBody() { return m_Body; }
 private:
 	float m_Speed = 5.f;
 	float m_Rotation = 0.0f;

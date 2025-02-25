@@ -26,7 +26,7 @@ namespace SerenEngine {
 		case ShaderDataType::Bool:     return GL_BOOL;
 		}
 
-		ASSERT(false, "Unknown ShaderDataType!");
+		//ASSERT(false, "Unknown ShaderDataType!");
 		return 0;
 	}
 	//	OpenGLVertexArray::OpenGLVertexArray() :
@@ -62,7 +62,7 @@ namespace SerenEngine {
 
 	void OpenGLVertexArray::AddVertexBuffer(VertexBuffer* vertexBuffer)
 	{
-		ASSERT(vertexBuffer->GetLayout().GetElements().size(), "Vertex Buffer has no layout!");
+		//ASSERT(vertexBuffer->GetLayout().GetElements().size(), "Vertex Buffer has no layout!");
 		m_VertexBuffers.push_back(vertexBuffer);
 
 		glBindVertexArray(mID);

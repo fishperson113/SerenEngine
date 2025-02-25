@@ -1,7 +1,7 @@
 #pragma once
 
 #include "pch.h"
-#include"Core/Input/KeyCode.h"
+#include"Core/Input/Keycode.h"
 namespace SerenEngine
 {
 	class SEREN_API EventContext

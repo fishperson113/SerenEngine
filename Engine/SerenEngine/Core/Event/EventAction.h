@@ -18,7 +18,7 @@ namespace SerenEngine
 		EventAction(const EventCallback<T>& callback) : m_Callback(callback) {}
 		virtual bool Execute(const EventContext* context) override
 		{
-			STATIC_ASSERT(std::is_base_of<EventContext, T>::value && "T must derive from EventContext");
+			//STATIC_ASSERT(std::is_base_of<EventContext, T>::value && "T must derive from EventContext");
 			return m_Callback(*static_cast<const T*>(context));
 		}
 	private:

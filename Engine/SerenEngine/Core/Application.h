@@ -63,8 +63,8 @@ namespace SerenEngine {
 		ApplicationConfiguration mConfig;
 		Unique<INativeWindow> mNativeWindow;
 		LayerStack* mLayerStack;
-		ECS::SystemManager* mSystemManager;
-		ECS::Coordinator* mCoordinator;
+		/*ECS::SystemManager* mSystemManager;
+		ECS::Coordinator* mCoordinator;*/
 		Renderer* mRenderer;
 		EventDispatcher mEventDispatcher;
 		class InputState* mInputState;

@@ -24,7 +24,7 @@ namespace SerenEngine {
 	{
 	}
 
-	OpenGLShader::OpenGLShader(const char* name=nullptr, const char* vertexSource= nullptr, const char* fragmentSource= nullptr,const char* geometrySource= nullptr) :
+	OpenGLShader::OpenGLShader(const char* name, const char* vertexSource, const char* fragmentSource,const char* geometrySource) :
 		mName(name), mVertexSource(vertexSource), mFragmentSource(fragmentSource), mGeometrySource(geometrySource)
 	{
 		//uint32_t vertexShaderID, fragmentShaderID;

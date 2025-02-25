@@ -11,6 +11,21 @@ endif()
 
 project ("SerenEngine")
 
+if (EMSCRIPTEN)
+    # Bỏ qua việc build các file không tương thích với Emscripten
+    set(IGNORE_FILES
+        ${CMAKE_SOURCE_DIR}/Vendors/glfw/src/posix_time.c
+        ${CMAKE_SOURCE_DIR}/Vendors/glfw/src/posix_module.c
+        ${CMAKE_SOURCE_DIR}/Vendors/glfw/src/posix_thread.c
+    )
+endif()
+
+# Gỡ bỏ những file không cần thiết khi build với Emscripten
+if (EMSCRIPTEN)
+    list(REMOVE_ITEM SRC_FILES ${IGNORE_FILES})
+endif()
+
+
 # Add UTF-8 flag for MSVC
 if (MSVC)
   add_compile_options(/utf-8)

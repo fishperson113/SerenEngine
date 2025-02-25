@@ -28,8 +28,8 @@ namespace SerenEngine {
 	{
 		mNativeWindow.reset(WindowPlatform::Create(config.WindowSpec));
 		mLayerStack = GlobalMemoryUsage::Get().NewOnStack<LayerStack>(LayerStack::RunTimeType.GetTypeName());
-		mSystemManager = GlobalMemoryUsage::Get().NewOnStack<ECS::SystemManager>(ECS::SystemManager::RunTimeType.GetTypeName());
-		mCoordinator = GlobalMemoryUsage::Get().NewOnStack<ECS::Coordinator>(ECS::Coordinator::RunTimeType.GetTypeName());
+		//mSystemManager = GlobalMemoryUsage::Get().NewOnStack<ECS::SystemManager>(ECS::SystemManager::RunTimeType.GetTypeName());
+		//mCoordinator = GlobalMemoryUsage::Get().NewOnStack<ECS::Coordinator>(ECS::Coordinator::RunTimeType.GetTypeName());
 		mRenderer = GlobalMemoryUsage::Get().NewOnStack<Renderer>(Renderer::RunTimeType.GetTypeName());
 		sInstance = this;
 	}
@@ -63,7 +63,7 @@ namespace SerenEngine {
 	/*	collisionSystem.SetUpdateInterval(5.0f);*/
 		//auto& inputSystem = mSystemManager->AddSystem<InputSystem>();
 
-		mSystemManager->OnInit();
+		//mSystemManager->OnInit();
 		ResourceManager::OnInit(mConfig.RendererSpec);
 		mRenderer->OnInit(mConfig);
 		Renderer::EnableBlending();
@@ -97,7 +97,7 @@ namespace SerenEngine {
 					layer->OnUpdate(MAX_DELTA_TIME);
 				}
 
-				mSystemManager->OnUpdate(MAX_DELTA_TIME);
+				//mSystemManager->OnUpdate(MAX_DELTA_TIME);
 
 				mTime -= MAX_DELTA_TIME;
 			}
@@ -108,7 +108,7 @@ namespace SerenEngine {
 				layer->OnUpdate(mTime);
 			}
 
-			mSystemManager->OnUpdate(MAX_DELTA_TIME);
+			//mSystemManager->OnUpdate(MAX_DELTA_TIME);
 			m_ImGuiLayer->Begin();
 			for (auto layer : *mLayerStack) {
 				layer->OnImGuiRender();
@@ -124,7 +124,7 @@ namespace SerenEngine {
 
 	void Application::Shutdown() {
 		mRenderer->OnShutDown();
-		mSystemManager->OnShutdown();
+		//mSystemManager->OnShutdown();
 		mNativeWindow->Shutdown();
 		ResourceManager::OnShutdown();
 		MemoryMonitor::Get().Clear();

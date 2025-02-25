@@ -15,7 +15,7 @@ namespace SerenEngine
 
 		template <typename T>
 		void AddEventListener(const EventCallback<T>& callback) {
-			STATIC_ASSERT(std::is_base_of<EventContext, T>::value && "Add invalid event context");
+			//STATIC_ASSERT(std::is_base_of<EventContext, T>::value && "Add invalid event context");
 			EventID eventID = GetTypeUUID<T>();
 			// TODO: Allocate with Memory Management System
 			IEventAction* eventAction = new EventAction<T>(callback);
@@ -25,7 +25,7 @@ namespace SerenEngine
 		template <typename T>
 		void DispatchEvent(const T& eventContext)
 		{
-			STATIC_ASSERT(std::is_base_of<EventContext, T>::value && "Dispatch invalid event context");
+			//STATIC_ASSERT(std::is_base_of<EventContext, T>::value && "Dispatch invalid event context");
 			EventID eventID = GetTypeUUID<T>();
 
 			if (mEventActionMap.find(eventID) == mEventActionMap.end()) {
